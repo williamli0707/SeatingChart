@@ -1,0 +1,45 @@
+.dropdown-expand {
+    list-style-type: none;
+    padding-left: 10px;
+}
+
+.collapse-horizontal {
+    padding: 0;
+    margin: 0;
+}
+
+.centered {
+    margin: 0 auto;
+}
+
+.form-control {
+    width: auto;
+}
+
+.menu-button-container {
+    object-fit: scale-down;
+    height: 30px;
+    width: 30px;
+}
+
+#iteration-list {
+    max-height: 30vh;
+    overflow: scroll;
+}
+
+#content {
+    min-height: 100%;
+    width: 100%;
+}
+
+#add-form {
+    min-width: 270px;
+}
+
+#main {
+    min-height: 100vh;
+}
+
+#back-button {
+    object-fit: contain;
+}

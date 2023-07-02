@@ -1,0 +1,21 @@
+{
+  "name": "seatingchart",
+  "version": "0.0.1",
+  "description": "A seating chart generator utility app",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "electron-forge start"
+  },
+  "author": "William Li",
+  "license": "MIT",
+  "dependencies": {
+    "electron-store": "^8.1.0",
+    "fs-extra": "^11.1.0"
+  },
+  "devDependencies": {
+    "@electron-forge/cli": "^6.0.4",
+    "electron": "^25.0.0",
+    "electron-builder": "^24.0.0"
+  }
+}
