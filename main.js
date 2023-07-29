@@ -5,6 +5,8 @@ const {
 } = require("electron");
 const path = require("path");
 const fs = require("fs");
+const Store = require('electron-store');
+const settings = new Store();
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -20,6 +22,8 @@ async function createWindow() {
         'minWidth': 900,
         webPreferences: {
             // preload: path.join(__dirname, "preload.js") // use a preload script
+            nodeIntegration: true,
+            contextIsolation: false,
         }
     });
 
@@ -45,3 +49,27 @@ ipcMain.on("deleteFile", (event, args) => {
 });
 
 app.on('ready', createWindow);
+
+ipcMain.handle("settings.set", (event, key, value) => {
+    settings.set(key, value);
+});
+
+ipcMain.handle("settings.get", (event, key) => {
+    return settings.get(key);
+});
+
+/**
+ * precondition: args[0] = className = string, className doesn't already exist, args[1] = rows, args[2] = columns
+ */
+ipcMain.handle("add-class", (event, args) => {
+    settings.set("classes." + args[0],
+        {
+            rows: args[1],
+            columns: args[2],
+            iterations: []
+        }
+    );
+});
+
+
+// ipcMain.handle()

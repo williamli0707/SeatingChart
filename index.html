@@ -5,92 +5,248 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <link href="styles.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js" type="text/javascript"></script>
+    <script defer src="renderer.js"></script>
+    <script defer src="algo.js"></script>
 </head>
 <body>
-<div class="container-fluid">
-    <div id="main">
-        <nav class="navbar navbar-expand-lg bg-body-tertiary">
-            <div class="container-fluid">
-                <button class="btn btn-light" style="margin-right: 20px;">
-                    <div class="menu-button-container">
-                        <img src="assets/menu.svg" id="menu-button" data-bs-toggle="collapse" data-bs-target="#sidebar" aria-expanded="false" aria-controls="sidebar" alt="menu" width="30" height="30">
-                    </div>
-                </button>
-                <a class="navbar-brand" href="#">Seating Charts</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                        <li class="nav-item">
-                            <a class="nav-link active" aria-current="page" href="#">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">Link</a>
-                        </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Iterations
-                            </a>
-                            <ul id="iterations" class="dropdown-menu">
-                                <div id="iteration-list">
-                                    <li><a class="dropdown-item" href="#">Iteration 1</a></li>
-<!--                                    <li><a class="dropdown-item" href="#">Another action</a></li>-->
-<!--                                    <li><a class="dropdown-item active" href="#">Another action</a></li>-->
-                                </div>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="#">Something else here</a></li>
-                            </ul>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link disabled">Disabled</a>
-                        </li>
-                    </ul>
-                    <form id="add-container" class="d-flex me-0">
-                        <input id="add-form" class="form-control me-2" type="search" placeholder="Names separated by commas" aria-label="add-student">
-                        <button class="btn btn-outline-success" type="submit">Add Student</button>
-                    </form>
+<div id="background-lock"></div>
+<div id="main">
+    <nav class="navbar navbar-expand-lg bg-body-tertiary">
+        <div id="container-fluid" class="container-fluid">
+            <button id="open-sidebar" class="btn btn-light" style="margin-right: 20px;">
+                <div class="menu-button-container">
+                    <img src="assets/menu.svg" id="menu-button" data-bs-toggle="collapse" data-bs-target="#sidebar"
+                         aria-expanded="false" aria-controls="sidebar" alt="menu" width="30" height="30">
                 </div>
-            </div>
-        </nav>
-        <div id="content" class="row justify-content-center">
-            <p class="centered">No iterations found</p>
-        </div>
-    </div>
-        <div id="sidebar" class="col-md-3 collapse collapse-horizontal shadow-lg" style="position: absolute; top: 0; left: 0;">
-            <div class="d-flex flex-column flex-shrink-0 p-3 bg-light" style="height: 100vh;">
-                <a href="#"
-                   class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-dark text-decoration-none gap-3">
-                    <button id="back-button" class="btn btn-light" data-bs-toggle="collapse" data-bs-target="#sidebar" aria-expanded="false" aria-controls="sidebar">
-                        <div class="menu-button-container justify-content-center">
-                            <img src="assets/back.svg" alt="back" width="30" height="30">
-                        </div>
-                    </button>
-                    <div class="vr"></div>
-                    <span class="fs-4">Sidebar</span>
-                </a>
-                <hr>
-                <ul class="nav nav-pills flex-column mb-auto">
-                    <li class="nav-item">
-                        <a class="nav-link active" href="#">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">About</a>
-                    </li>
+            </button>
+            <a class="navbar-brand" href="#">Seating Chart for: </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul id="navbar-extras" class="navbar-nav ms-auto">
+<!--                    <li class="nav-item">-->
+<!--                        <a class="nav-link active" aria-current="page" href="#">Home</a>-->
+<!--                    </li>-->
+<!--                    <li class="nav-item">-->
+<!--                        <a class="nav-link" href="#">Link</a>-->
+<!--                    </li>-->
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#dropdown" data-bs-toggle="collapse"
-                           data-bs-target="#dropdown" aria-expanded="false" aria-controls="dropdown">
-                            Dropdown
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                           aria-expanded="false">
+                            Iterations
                         </a>
-                        <ul id="dropdown" class="dropdown-expand collapse collapsed" aria-labelledby="dropdown">
-                            <li><a class="nav-link" href="#">Item 1</a></li>
-                            <li><a class="nav-link" href="#">Item 2</a></li>
-                            <li><a class="nav-link" href="#">Item 3</a></li>
+                        <ul id="iterations" class="dropdown-menu">
+                            <div id="iteration-list">
+                                <li><a class="dropdown-item" href="#">Classes 1</a></li>
+                                <!--                                    <li><a class="dropdown-item" href="#">Another action</a></li>-->
+                                <!--                                    <li><a class="dropdown-item active" href="#">Another action</a></li>-->
+                                <!--                                    <li></li>-->
+                            </div>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item" href="#">Something else here</a></li>
                         </ul>
                     </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                           aria-expanded="false">
+                            Shuffle
+                        </a>
+                        <ul id="shuffle" class="dropdown-menu">
+                            <div id="shuffle-list">
+                                <li><a class="dropdown-item" href="#">No iterations found</a></li>
+                                <!--                                    <li><a class="dropdown-item" href="#">Another action</a></li>-->
+                                <!--                                    <li><a class="dropdown-item active" href="#">Another action</a></li>-->
+                                <!--                                    <li></li>-->
+                            </div>
+<!--                            <li>-->
+<!--                                <hr class="dropdown-divider">-->
+<!--                            </li>-->
+<!--                            <li><a class="dropdown-item" href="#">Something else here</a></li>-->
+                        </ul>
+                    </li>
+<!--                    <li class="nav-item">-->
+<!--                        <a class="nav-link disabled">Disabled</a>-->
+<!--                    </li>-->
                 </ul>
+<!--                <form id="add-container" class="d-flex me-0">-->
+<!--                    <input id="add-form" class="form-control me-2" type="search" placeholder="Names separated by commas"-->
+<!--                           aria-label="add-student">-->
+<!--                    <button class="btn btn-outline-success" type="submit">Add Student</button>-->
+<!--                </form>-->
+                <button class="btn btn-outline-info nav-item-right">Students</button>
             </div>
         </div>
+    </nav>
+    <!--            <p class="centered">No iterations found</p>-->
+    <div id="iteration-content" class="flex-fill">
+        <div class="row">
+            <div class="col">
+                <div class="cell"><a draggable="true">Student 1</a></div>
+            </div>
+            <div class="col">
+                <div class="cell"><a draggable="true">Student 2</a></div>
+            </div>
+            <div class="col">
+                <div class="cell"><a draggable="true">Student 3</a></div>
+            </div>
+            <div class="col">
+                <div class="cell"><a draggable="true">Student 4</a></div>
+            </div>
+            <div class="col">
+                <div class="cell"><a draggable="true">Student 5</a></div>
+            </div>
+            <div class="col">
+                <div class="cell"><a draggable="true">Student 6</a></div>
+            </div>
+            <div class="col">
+                <div class="cell"><a draggable="true">Student 7</a></div>
+            </div>
+            <div class="col">
+                <div class="cell"><a draggable="true">Student 8</a></div>
+            </div>
+            <div class="col">
+                <div class="cell"><a draggable="true">Student 9</a></div>
+            </div>
+            <div class="col">
+                <div class="cell"><a draggable="true">Student 10</a></div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <div class="cell"><a draggable="true">2 Student 1</a></div>
+            </div>
+            <div class="col">
+                <div class="cell"><a draggable="true">2 Student 2</a></div>
+            </div>
+            <div class="col">
+                <div class="cell"><a draggable="true">2 Student 3</a></div>
+            </div>
+            <div class="col">
+                <div class="cell"><a draggable="true">2 Student 4</a></div>
+            </div>
+            <div class="col">
+                <div class="cell"><a draggable="true">2 Student 5</a></div>
+            </div>
+            <div class="col">
+                <div class="cell"><a draggable="true">2 Student 6</a></div>
+            </div>
+            <div class="col">
+                <div class="cell"><a draggable="true">2 Student 7</a></div>
+            </div>
+            <div class="col">
+                <div class="cell"><a draggable="true">2 Student 8</a></div>
+            </div>
+            <div class="col">
+                <div class="cell"><a draggable="true">2 Student 9</a></div>
+            </div>
+            <div class="col">
+                <div class="cell"><a draggable="true">2 Student 10</a></div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <div class="cell"><a draggable="true">3 Student 1</a></div>
+            </div>
+            <div class="col">
+                <div class="cell"><a draggable="true">3 Student 2</a></div>
+            </div>
+            <div class="col">
+                <div class="cell"><a draggable="true">3 Student 3</a></div>
+            </div>
+            <div class="col">
+                <div class="cell"><a draggable="true">3 Student 4</a></div>
+            </div>
+            <div class="col">
+                <div class="cell"><a draggable="true">3 Student 5</a></div>
+            </div>
+            <div class="col">
+                <div class="cell"><a draggable="true">3 Student 6</a></div>
+            </div>
+            <div class="col">
+                <div class="cell"><a draggable="true">3 Student 7</a></div>
+            </div>
+            <div class="col">
+                <div class="cell"><a draggable="true">3 Student 8</a></div>
+            </div>
+            <div class="col">
+                <div class="cell"><a draggable="true">3 Student 9</a></div>
+            </div>
+            <div class="col">
+                <div class="cell"><a draggable="true">3 Student 10</a></div>
+            </div>
+        </div>
+    </div>
+    <div id="footer">
+        <button id="test-button" class="btn btn-primary footer-button">test</button>
+        <button id="save-as-new-iteration" class="btn btn-primary footer-button">Save as new iteration</button>
+    </div>
+    <div class="modal fade" id="prompt-new-class" tabindex="-1" aria-labelledby="promptNewClass" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Add a new class</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="prompt-new-class-error"></p>
+                    <p>Class name: </p>
+                    <input type="text" id="class-name" name="class-name" placeholder="Class name">
+                    <br><br>
+                    <p>Class size: </p>
+                    <input type="number" id="class-size-r" name="class-size" placeholder="Number of rows in class"> <br> <p>rows x</p>
+                    <input type="number" id="class-size-c" name="class-size" placeholder="Number of columns in class"> <p>columns</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button id="confirm-create-class" type="button" class="btn btn-primary">Create</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="sidebar" class="col-md-3 collapse collapse-horizontal shadow-lg" style="position: absolute; top: 0; left: 0;">
+    <div class="d-flex flex-column flex-shrink-0 p-3 bg-light" style="height: 100vh;">
+        <a href="#"
+           class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-dark text-decoration-none gap-3">
+            <button id="back-button" class="btn btn-light" data-bs-toggle="collapse" data-bs-target="#sidebar"
+                    aria-expanded="false" aria-controls="sidebar">
+                <div class="menu-button-container justify-content-center">
+                    <img src="assets/back.svg" alt="back" width="30" height="30">
+                </div>
+            </button>
+            <div class="vr"></div>
+            <span class="fs-4">Sidebar</span>
+        </a>
+        <hr>
+        <ul class="nav nav-pills flex-column mb-auto">
+            <li class="nav-item">
+                <a class="nav-link active" href="#">Home</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">About</a>
+            </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#dropdown" data-bs-toggle="collapse"
+                   data-bs-target="#dropdown" aria-expanded="false" aria-controls="dropdown">
+                    Classes
+                </a>
+                <ul id="dropdown" class="dropdown-expand collapse collapsed" aria-labelledby="dropdown">
+                    <!--                            <li><a class="nav-link" href="#">Item 1</a> </li>-->
+                    <!--                            <li><a class="nav-link" href="#">Item 2</a> </li>-->
+                    <!--                            <li><a class="nav-link" href="#">Item 3</a> </li>-->
+                    <li>
+                        <button id="add-class" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#prompt-new-class">+ Add a new class</button>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </div>
 </div>
 </body>
 </html>
