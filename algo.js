@@ -13,7 +13,7 @@ let { Student, Seat, Iteration } = require("./classes.js");
 for(let i = 0;i < rows;i++) {
     grid[i] = [];
     for(let j = 0;j < cols;j++) {
-        grid[i][j] = new Student(i, j, "Student " + i + " " + j, (i + j) % 2 === 0 ? "M" : "F");
+        grid[i][j] = new Seat(false, new Student(i, j, "Student " + i + " " + j, (i + j) % 2 === 0 ? "M" : "F"));
     }
 }
 

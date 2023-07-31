@@ -9,6 +9,10 @@ document.getElementById("test-button").addEventListener("click", () => {
     loadIteration("Test_class_of_2036", 0);
 });
 
+document.getElementById("test-button-2").addEventListener("click", () => {
+    // document.getElementById("iteration-separator").classList.remove("d-none");
+});
+
 document.getElementById("confirm-create-class").addEventListener("click", () => {
     //TODO check for conditions like empty, invalid, duplicate name, etc
     let className = document.getElementById("class-name").value;
@@ -71,9 +75,10 @@ async function loadIteration(className, iterNum) {
             col.classList.add("col");
             let cell = document.createElement("div");
             cell.classList.add("cell");
+            cell.draggable = true;
             let a = document.createElement("a");
             a.textContent = res.iterations[iterNum].seats[i][j].name;
-            a.draggable = true;
+            // a.draggable = true;
             cell.appendChild(a);
             col.appendChild(cell);
             row.appendChild(col);
