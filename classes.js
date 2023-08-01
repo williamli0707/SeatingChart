@@ -25,12 +25,16 @@ class Student {
     gender;
     r;
     c;
-    constructor(i, j, name, gender) {
+    deleted;
+    id;
+    constructor(i, j, name, gender, id) {
         this.r = i;
         this.c = j;
         this.name = name;
         this.gender = gender;
+        this.deleted = false;
+        this.id = id;
     }
 }
 
-module.exports = {Iteration}
+module.exports = { Iteration, Seat, Student }

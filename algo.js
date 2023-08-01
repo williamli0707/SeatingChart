@@ -5,7 +5,8 @@ front half, back half
 specific student next to each other
 */
 
-let grid = []
+let grid = [];
+let students = {};
 let rows = 10, cols = 6;
 
 let { Student, Seat, Iteration } = require("./classes.js");
@@ -13,9 +14,16 @@ let { Student, Seat, Iteration } = require("./classes.js");
 for(let i = 0;i < rows;i++) {
     grid[i] = [];
     for(let j = 0;j < cols;j++) {
-        grid[i][j] = new Seat(false, new Student(i, j, "Student " + i + " " + j, (i + j) % 2 === 0 ? "M" : "F"));
+        let id = Date.now();
+        while(students[id.toString()]) id++;
+        students[id.toString()] = new Student(i, j, "Student " + i + " " + j, (i + j) % 2 === 0 ? "M" : "F", id);
+        grid[i][j] = new Seat(false, students[id.toString()]);
     }
 }
+
+Object.values(students).map((type) => {
+    console.log(type);
+})
 
 let iter = new Iteration(60, rows, cols);
 iter.seats = grid;
@@ -25,9 +33,9 @@ iter.seats = grid;
 //         columns: cols,
 //         iterations: [iter]
 //     }).then(r =>console.log(ipcRenderer.invoke("settings.get", "classes")["Test class of 2036"]));
-ipcRenderer.invoke("settings.get", "classes").then((res) => {
-    console.log(res["Test_class_of_2036"]);
-});
+// ipcRenderer.invoke("settings.get", "classes").then((res) => {
+//     console.log(res["Test_class_of_2036"]);
+// });
 
 
 // grid[9][5]
@@ -93,11 +101,11 @@ function generate(grid, options) {
         //calculate stats
         for(let i = 0;i < r;i++) {
             for(let j = 0;j < c;j++) {
-                let dist = Math.abs(i - grid[i][j].r) + Math.abs(j - grid[i][j].c);
+                let dist = Math.abs(i - grid[i][j].student.r) + Math.abs(j - grid[i][j].student.c);
                 minDist = Math.min(minDist, dist);
                 maxDist = Math.max(maxDist, dist);
                 avgDist += dist;
-                [grid[i][j].r, grid[i][j].c] = [i, j];
+                [grid[i][j].student.r, grid[i][j].student.c] = [i, j];
             }
         }
 
@@ -133,9 +141,4 @@ function generate(grid, options) {
             }
         }
     }
-}
-
-module.exports = {
-    Student,
-    Iteration
 }

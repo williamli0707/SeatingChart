@@ -66,7 +66,8 @@ ipcMain.handle("add-class", (event, args) => {
         {
             rows: args[1],
             columns: args[2],
-            iterations: []
+            iterations: [],
+            students: []
         }
     );
 });

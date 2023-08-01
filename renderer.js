@@ -14,7 +14,6 @@ document.getElementById("test-button-2").addEventListener("click", () => {
 });
 
 document.getElementById("confirm-create-class").addEventListener("click", () => {
-    //TODO check for conditions like empty, invalid, duplicate name, etc
     let className = document.getElementById("class-name").value;
     let r = document.getElementById("class-size-r").value;
     let c = document.getElementById("class-size-c").value;
@@ -32,6 +31,8 @@ document.getElementById("confirm-create-class").addEventListener("click", () => 
         return;
     }
     ipcRenderer.invoke("add-class", [className, r, c]);
+    newClassModal.hide();
+    loadIteration(className, -1);
 });
 
 document.getElementById("prompt-new-class").addEventListener("hidden.bs.modal", () => {
@@ -56,17 +57,17 @@ document.getElementById("back-button").addEventListener("click", () => {
 });
 
 async function loadClass(className) {
-
 }
 
 async function loadIteration(className, iterNum) {
+    let content = document.getElementById("iteration-content");
+    while(content.children.length) content.children[0].remove();
+
     let res = (await ipcRenderer.invoke("settings.get", "classes"))[className];
     console.log(res);
     console.log("___")
     // console.log(res.iterations[0])
     let r = res.rows, c = res.columns;
-    let content = document.getElementById("iteration-content");
-    while(content.children.length) content.children[0].remove();
     for(let i = 0;i < r;i++) {
         let row = document.createElement("div");
         row.classList.add("row");
