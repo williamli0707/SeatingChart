@@ -20,7 +20,7 @@
                          aria-expanded="false" aria-controls="sidebar" alt="menu" width="30" height="30">
                 </div>
             </button>
-            <a class="navbar-brand mb-0 me-auto" href="#">Seating Chart for: </a>
+            <a id="title-name" class="navbar-brand mb-0 me-auto" href="#">Seating Chart for: </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                     data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
                     aria-expanded="false" aria-label="Toggle navigation">
@@ -35,7 +35,7 @@
                     <!--                        <a class="nav-link" href="#">Link</a>-->
                     <!--                    </li>-->
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                        <a id="iterations-dropdown-label" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
                            aria-expanded="false">
                             Iterations
                         </a>
@@ -46,10 +46,10 @@
                                 <!--                                    <li><a class="dropdown-item active" href="#">Another action</a></li>-->
                                 <!--                                    <li></li>-->
                             </div>
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
-                            <li><a class="dropdown-item" href="#">Something else here</a></li>
+<!--                            <li>-->
+<!--                                <hr class="dropdown-divider">-->
+<!--                            </li>-->
+<!--                            <li><a class="dropdown-item" href="#">Something else here</a></li>-->
                         </ul>
                     </li>
                     <li class="nav-item dropdown">
@@ -188,103 +188,49 @@
         </div>
         <div id="student-sidebar" class="col-md-3 collapse collapse-horizontal">
             <div id="student-sidebar-content" class="d-flex flex-column flex-shrink-0 p-3 bg-light" style="height: 100%;">
-                <p>Your students for this class:</p>
-                <ul class="nav nav-pills flex-column mb-auto list-group">
-                    <li draggable="true" class="nav-item student student-used list-group-item">
-                        StudentVeryLongFirstName ExtremelyUnbelievablyUnnaturallyVeryLongLastName
-                    </li>
-                    <li draggable="true" class="nav-item student student-used list-group-item">
-                        StudentVeryLongFirstName ExtremelyUnbelievablyUnnaturallyVeryLongLastName
-                    </li>
-                    <li draggable="true" class="nav-item student student-used list-group-item">
-                        StudentVeryLongFirstName ExtremelyUnbelievablyUnnaturallyVeryLongLastName
-                    </li>
-                    <li draggable="true" class="nav-item student student-used list-group-item">
-                        StudentVeryLongFirstName ExtremelyUnbelievablyUnnaturallyVeryLongLastName
-                    </li>
-                    <li draggable="true" class="nav-item student student-used list-group-item">
-                        StudentVeryLongFirstName ExtremelyUnbelievablyUnnaturallyVeryLongLastName
-                    </li>
-                    <li draggable="true" class="nav-item student student-used list-group-item">
-                        StudentVeryLongFirstName ExtremelyUnbelievablyUnnaturallyVeryLongLastName
-                    </li>
-                    <li draggable="true" class="nav-item student student-used list-group-item">
-                        StudentVeryLongFirstName ExtremelyUnbelievablyUnnaturallyVeryLongLastName
-                    </li>
-                    <li draggable="true" class="nav-item student student-used list-group-item">
-                        StudentVeryLongFirstName ExtremelyUnbelievablyUnnaturallyVeryLongLastName
-                    </li>
-                    <li draggable="true" class="nav-item student student-used list-group-item">
-                        StudentVeryLongFirstName ExtremelyUnbelievablyUnnaturallyVeryLongLastName
-                    </li>
-                    <li draggable="true" class="nav-item student student-used list-group-item">
-                        StudentVeryLongFirstName ExtremelyUnbelievablyUnnaturallyVeryLongLastName
-                    </li>
-                    <li draggable="true" class="nav-item student student-used list-group-item">
-                        StudentVeryLongFirstName ExtremelyUnbelievablyUnnaturallyVeryLongLastName
-                    </li>
-                    <li draggable="true" class="nav-item student student-used list-group-item">
-                        StudentVeryLongFirstName ExtremelyUnbelievablyUnnaturallyVeryLongLastName
-                    </li>
-                    <li draggable="true" class="nav-item student student-used list-group-item">
-                        StudentVeryLongFirstName ExtremelyUnbelievablyUnnaturallyVeryLongLastName
-                    </li>
-                    <li draggable="true" class="nav-item student student-used list-group-item">
-                        StudentVeryLongFirstName ExtremelyUnbelievablyUnnaturallyVeryLongLastName
-                    </li>
-                    <li draggable="true" class="nav-item student student-used list-group-item">
-                        StudentVeryLongFirstName ExtremelyUnbelievablyUnnaturallyVeryLongLastName
-                    </li>
-                    <li draggable="true" class="nav-item student student-used list-group-item">
-                        StudentVeryLongFirstName ExtremelyUnbelievablyUnnaturallyVeryLongLastName
-                    </li>
-                    <li draggable="true" class="nav-item student student-used list-group-item">
-                        StudentVeryLongFirstName ExtremelyUnbelievablyUnnaturallyVeryLongLastName
-                    </li>
-                    <li draggable="true" class="nav-item student student-used list-group-item">
-                        StudentVeryLongFirstName ExtremelyUnbelievablyUnnaturallyVeryLongLastName
-                    </li>
-                    <li draggable="true" class="nav-item student student-used list-group-item">
-                        StudentVeryLongFirstName ExtremelyUnbelievablyUnnaturallyVeryLongLastName
-                    </li>
-                    <li draggable="true" class="nav-item student student-used list-group-item">
-                        StudentVeryLongFirstName ExtremelyUnbelievablyUnnaturallyVeryLongLastName
-                    </li>
-                    <li draggable="true" class="nav-item student student-used list-group-item">
-                        StudentVeryLongFirstName ExtremelyUnbelievablyUnnaturallyVeryLongLastName
-                    </li>
-                    <li draggable="true" class="nav-item student student-used list-group-item">
-                        StudentVeryLongFirstName ExtremelyUnbelievablyUnnaturallyVeryLongLastName
-                    </li>
-                    <li draggable="true" class="nav-item student student-used list-group-item">
-                        StudentVeryLongFirstName ExtremelyUnbelievablyUnnaturallyVeryLongLastName
-                    </li>
-                    <li draggable="true" class="nav-item student student-used list-group-item">
-                        StudentVeryLongFirstName ExtremelyUnbelievablyUnnaturallyVeryLongLastName
-                    </li>
-                    <li draggable="true" class="nav-item student student-used list-group-item">
-                        StudentVeryLongFirstName ExtremelyUnbelievablyUnnaturallyVeryLongLastName
-                    </li>
-                    <li draggable="true" class="nav-item student student-used list-group-item">
-                        StudentVeryLongFirstName ExtremelyUnbelievablyUnnaturallyVeryLongLastName
-                    </li>
-                    <li draggable="true" class="nav-item student student-used list-group-item">
-                        StudentVeryLongFirstName ExtremelyUnbelievablyUnnaturallyVeryLongLastName
-                    </li>
-                    <li draggable="true" class="nav-item student student-used list-group-item">
-                        StudentVeryLongFirstName ExtremelyUnbelievablyUnnaturallyVeryLongLastName
-                    </li>
-                    <li draggable="true" class="nav-item student student-used list-group-item">
-                        StudentVeryLongFirstName ExtremelyUnbelievablyUnnaturallyVeryLongLastName
-                    </li>
-                    <li draggable="true" class="nav-item student student-used list-group-item">
-                        StudentVeryLongFirstName ExtremelyUnbelievablyUnnaturallyVeryLongLastName
-                    </li>
-
-                    <li>
-                        <button class="btn btn-primary">+ Add students</button>
-                    </li>
-                </ul>
+                <p style="margin: 0;">Your students for this class:</p>
+                <div id="student-list">
+                    <ul class="nav nav-pills flex-column mb-auto list-group">
+                        <li draggable="true" class="nav-item student student-used list-group-item">
+                            StudentVeryLongFirstName ExtremelyUnbelievablyUnnaturallyVeryLongLastName
+                        </li>
+                        <li draggable="true" class="nav-item student student-used list-group-item">
+                            StudentVeryLongFirstName ExtremelyUnbelievablyUnnaturallyVeryLongLastName
+                        </li>
+                        <li draggable="true" class="nav-item student student-used list-group-item">
+                            StudentVeryLongFirstName ExtremelyUnbelievablyUnnaturallyVeryLongLastName
+                        </li>
+                        <li draggable="true" class="nav-item student student-used list-group-item">
+                            StudentVeryLongFirstName ExtremelyUnbelievablyUnnaturallyVeryLongLastName
+                        </li>
+                        <li draggable="true" class="nav-item student student-used list-group-item">
+                            StudentVeryLongFirstName ExtremelyUnbelievablyUnnaturallyVeryLongLastName
+                        </li>
+                        <li draggable="true" class="nav-item student student-used list-group-item">
+                            StudentVeryLongFirstName ExtremelyUnbelievablyUnnaturallyVeryLongLastName
+                        </li>
+                        <li draggable="true" class="nav-item student student-used list-group-item">
+                            StudentVeryLongFirstName ExtremelyUnbelievablyUnnaturallyVeryLongLastName
+                        </li>
+                        <li draggable="true" class="nav-item student student-used list-group-item">
+                            StudentVeryLongFirstName ExtremelyUnbelievablyUnnaturallyVeryLongLastName
+                        </li>
+                        <li draggable="true" class="nav-item student student-used list-group-item">
+                            StudentVeryLongFirstName ExtremelyUnbelievablyUnnaturallyVeryLongLastName
+                        </li>
+                        <li draggable="true" class="nav-item student student-used list-group-item">
+                            StudentVeryLongFirstName ExtremelyUnbelievablyUnnaturallyVeryLongLastName
+                        </li>
+                        <li draggable="true" class="nav-item student student-used list-group-item">
+                            StudentVeryLongFirstName ExtremelyUnbelievablyUnnaturallyVeryLongLastName
+                        </li>
+                        <li draggable="true" class="nav-item student student-used list-group-item">
+                            StudentVeryLongFirstName ExtremelyUnbelievablyUnnaturallyVeryLongLastName
+                        </li>
+                    </ul>
+                </div>
+                <div class="hr"></div>
+                <button class="btn btn-primary">+ Add students</button>
             </div>
         </div>
     </div>
@@ -376,6 +322,19 @@
                 </ul>
             </li>
         </ul>
+    </div>
+</div>
+
+<!--Toasts-->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div class="toast-new-class" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-body">
+            Successfully created a new class!
+            <div class="mt-2 pt-2 border-top">
+                <button id="open-new-class" type="button" class="btn btn-primary btn-sm" data-bs-dismiss="toast">Show new class</button>
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="toast">Close</button>
+            </div>
+        </div>
     </div>
 </div>
 </body>

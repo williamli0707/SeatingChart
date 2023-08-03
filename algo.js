@@ -17,7 +17,7 @@ for(let i = 0;i < rows;i++) {
         let id = Date.now();
         while(students[id.toString()]) id++;
         students[id.toString()] = new Student(i, j, "Student " + i + " " + j, (i + j) % 2 === 0 ? "M" : "F", id);
-        grid[i][j] = new Seat(false, students[id.toString()]);
+        grid[i][j] = new Seat(false, id.toString());
     }
 }
 
@@ -31,11 +31,12 @@ iter.seats = grid;
 //     {
 //         rows: rows,
 //         columns: cols,
-//         iterations: [iter]
+//         iterations: [iter],
+//         students: students
 //     }).then(r =>console.log(ipcRenderer.invoke("settings.get", "classes")["Test class of 2036"]));
-// ipcRenderer.invoke("settings.get", "classes").then((res) => {
-//     console.log(res["Test_class_of_2036"]);
-// });
+ipcRenderer.invoke("settings.get", "classes").then((res) => {
+    console.log(res["Test_class_of_2036"]);
+});
 
 
 // grid[9][5]

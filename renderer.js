@@ -1,16 +1,21 @@
 const { ipcRenderer } = require('electron');
 
 let newClassModal = new bootstrap.Modal(document.getElementById('prompt-new-class'), {});
+let toastNewClass = bootstrap.Toast.getOrCreateInstance(document.getElementById('toast-new-class'));
 
 let settings;
 ipcRenderer.invoke("settings.get", "classes").then((res) => {settings = res;});
 
 document.getElementById("test-button").addEventListener("click", () => {
-    loadIteration("Test_class_of_2036", 0);
+    loadClass("Test_class_of_2036");
 });
 
 document.getElementById("test-button-2").addEventListener("click", () => {
     // document.getElementById("iteration-separator").classList.remove("d-none");
+});
+
+document.getElementById("open-new-class").addEventListener("click", () => {
+    loadClass(document.getElementById("open-new-class").getAttribute("class-name"));
 });
 
 document.getElementById("confirm-create-class").addEventListener("click", () => {
@@ -30,9 +35,12 @@ document.getElementById("confirm-create-class").addEventListener("click", () => 
         document.getElementById("prompt-new-class-error").innerText = "Class name cannot be empty";
         return;
     }
+
+    toastNewClass.show();
+    document.getElementById("open-new-class").setAttribute("class-name", className);
+
     ipcRenderer.invoke("add-class", [className, r, c]);
     newClassModal.hide();
-    loadIteration(className, -1);
 });
 
 document.getElementById("prompt-new-class").addEventListener("hidden.bs.modal", () => {
@@ -57,15 +65,28 @@ document.getElementById("back-button").addEventListener("click", () => {
 });
 
 async function loadClass(className) {
-}
+    let res = (await ipcRenderer.invoke("settings.get", "classes"))[className];
+    let students = res.students;
 
-async function loadIteration(className, iterNum) {
+    document.getElementById("title-name").innerText = "Seating chart for: " + className;
+
+    let studentList = document.getElementById("student-list").children[0];
+    while(studentList.children[0]) studentList.children[0].remove();
+    Object.values(students).map((student) => {
+        let element = document.createElement("li");
+        element.draggable = true;
+        element.classList.add("list-group-item");
+        element.classList.add("student");
+        element.classList.add("student-unused");
+        element.classList.add("nav-item");
+        element.innerText = student.name;
+        studentList.appendChild(element);
+        //nav-item student student-used list-group-item
+    })
+
     let content = document.getElementById("iteration-content");
     while(content.children.length) content.children[0].remove();
 
-    let res = (await ipcRenderer.invoke("settings.get", "classes"))[className];
-    console.log(res);
-    console.log("___")
     // console.log(res.iterations[0])
     let r = res.rows, c = res.columns;
     for(let i = 0;i < r;i++) {
@@ -77,14 +98,58 @@ async function loadIteration(className, iterNum) {
             let cell = document.createElement("div");
             cell.classList.add("cell");
             cell.draggable = true;
+            cell.id = "cell-" + i + "-" + j;
             let a = document.createElement("a");
-            a.textContent = res.iterations[iterNum].seats[i][j].name;
+            // TODO empty/unused seats
+
+            if(res.sea)
+
             // a.draggable = true;
             cell.appendChild(a);
             col.appendChild(cell);
             row.appendChild(col);
         }
         content.appendChild(row);
+    }
+    console.log("done loading rows and cols");
+
+    console.log(res.iterations)
+
+    let iterationList = document.getElementById("iteration-list");
+    while(iterationList.children[0]) iterationList.children[0].remove();
+
+    if(res.iterations.length) {
+        res.iterations.forEach(i => {
+            let element = document.createElement("li");
+            let text = document.createElement("a");
+            text.classList.add("dropdown-item");
+            text.innerText = "Iteration " + (res.iterations.indexOf(i) + 1);
+            element.appendChild(text);
+            iterationList.appendChild(element);
+        })
+        await loadIteration(className, res.iterations.length - 1);
+    }
+    else {
+        let element = document.createElement("li");
+        let text = document.createElement("a");
+        text.classList.add("dropdown-item");
+        text.classList.add("disabled");
+        text.innerText = "No iterations yet. ";
+        element.appendChild(text);
+        iterationList.appendChild(element);
+    }
+}
+
+async function loadIteration(className, iterNum) {
+    let res = (await ipcRenderer.invoke("settings.get", "classes"))[className];
+    let students = res.students;
+    // console.log(res.iterations[0])
+    document.getElementById("iterations-dropdown-label").innerText = "Iteration + " + (iterNum + 1);
+    let r = res.rows, c = res.columns;
+    for(let i = 0;i < r;i++) {
+        for(let j = 0;j < c;j++) {
+            document.getElementById("cell-" + i + "-" + j).children[0].textContent = students[res.iterations[iterNum].seats[i][j].student].name;
+        }
     }
 }
 
