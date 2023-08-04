@@ -6,9 +6,7 @@ let toastNewClass = bootstrap.Toast.getOrCreateInstance(document.getElementById(
 let settings;
 ipcRenderer.invoke("settings.get", "classes").then((res) => {settings = res;});
 
-document.getElementById("test-button").addEventListener("click", () => {
-    loadClass("Test class of 2036");
-});
+loadClass("Test class of 2036");
 
 document.getElementById("test-button-2").addEventListener("click", async () => {
     // document.getElementById("iteration-separator").classList.remove("d-none");
@@ -92,6 +90,10 @@ async function loadClass(className) {
         document.vars.students[student.id] = student;
 
         //nav-item student student-used list-group-item
+
+        element.addEventListener("dragstart", (e) => {
+            e.dataTransfer.setData("text/plain", student.id);
+        });
     })
 
     let content = document.getElementById("iteration-content");
@@ -116,6 +118,74 @@ async function loadClass(className) {
             cell.appendChild(a);
             col.appendChild(cell);
             row.appendChild(col);
+
+            cell.addEventListener("dragenter", (e) => {
+                console.log("dragenter " + e.target.id);
+                if(e.target.classList.contains("cell") || e.target.classList.contains("cell-unoccupied")) {
+                    e.preventDefault();
+                    e.target.classList.add("cell-hover");
+                }
+            });
+            cell.addEventListener("dragover", (e) => {
+                if(e.target.classList.contains("cell") || e.target.classList.contains("cell-unoccupied")) {
+                    e.preventDefault();
+                }
+            });
+            cell.addEventListener("dragleave", (e) => {
+                if(e.target.classList.contains("cell") || e.target.classList.contains("cell-unoccupied")) {
+                    e.target.classList.remove("cell-hover");
+                }
+            });
+            cell.addEventListener("drop", (e) => {
+                console.log("drpp " + e.target.id);
+                if (e.target.classList.contains("cell") || e.target.classList.contains("cell-unoccupied")){
+                    e.target.classList.remove("cell-hover");
+                    let newid = e.dataTransfer.getData("text/plain");
+                    console.log("student " + newid + " dropped on cell " + e.target.id);
+                    let newstudent = document.getElementById("student-" + newid);
+                    let newseat = newstudent.getAttribute("seat");
+
+                    if(newseat) {
+                        //if student was in another seat before this
+                        let coords = newseat.split("-");
+                        let r = parseInt(coords[0]), c = parseInt(coords[1]);
+                        let cell = document.getElementById("cell-" + r + "-" + c);
+                        let button = cell.children[1];
+
+                        cell.classList.remove("cell");
+                        cell.classList.add("cell-unoccupied");
+                        cell.children[0].textContent = "";
+
+                        button.classList.remove("bi-x");
+                        button.classList.add("bi-plus");
+                        button.setAttribute("x", "false")
+
+                        document.vars.grid[r][c] = new Seat(false, null);
+
+                        document.getElementById("student-" + newid).removeAttribute("seat");
+                    }
+
+                    let cell = e.target;
+                    //"cell-10-4"
+                    let coords = cell.id.substring(5).split("-");
+                    let r = parseInt(coords[0]), c = parseInt(coords[1]);
+                    if (cell.classList.contains("cell")) {
+                        //if student was already in this seat - displaced
+                        let old = document.getElementById("student-" + e.target.getAttribute("student"));
+                        old.classList.remove("student-used");
+                        old.classList.add("student");
+                        old.removeAttribute("seat");
+                    }
+                    cell.classList.remove("cell-unoccupied");
+                    cell.classList.add("cell");
+                    cell.setAttribute("student", newid);
+                    cell.children[0].textContent = document.vars.students[newid].name;
+                    newstudent.setAttribute("seat", r + "-" + c);
+                    newstudent.classList.add("student-used");
+
+                    document.vars.grid[r][c] = new Seat(true, newid);
+                }
+            });
         }
         content.appendChild(row);
     }

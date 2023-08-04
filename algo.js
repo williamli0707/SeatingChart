@@ -42,9 +42,11 @@ var update = (res, iter) => {
             if(res.iterations[iter].seats[i][j].student) {
                 cell.children[0].textContent = document.vars.students[res.iterations[iter].seats[i][j].student].name;
                 cell.classList.add("cell");
+                cell.setAttribute("student", res.iterations[iter].seats[i][j].student);
                 button.classList.add("bi-x");
                 document.vars.grid[i][j] = new Seat(false, res.iterations[iter].seats[i][j].student);
                 document.getElementById("student-" + document.vars.grid[i][j].student).classList.add("student-used");
+                document.getElementById("student-" + document.vars.grid[i][j].student).setAttribute("seat", i + "-" + j);
 
                 button.setAttribute("x", "true")
             }
@@ -78,8 +80,13 @@ function change(r, c) {
 
         if (cell.classList.contains("cell")) {
             cell.classList.remove("cell");
-            document.getElementById("student-" + document.vars.grid[r][c].student).classList.remove("student-used");
-            document.getElementById("student-" + document.vars.grid[r][c].student).classList.add("student");
+            cell.removeAttribute("student");
+
+            let old = document.getElementById("student-" + document.vars.grid[r][c].student);
+            old.classList.remove("student-used");
+            old.classList.add("student");
+            old.removeAttribute("seat");
+
             cell.children[0].textContent = "";
         }
         else cell.classList.remove("cell-unoccupied");

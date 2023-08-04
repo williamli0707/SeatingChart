@@ -100,6 +100,10 @@ a.bi {
     position: absolute;
 }
 
+.cell-hover {
+/*    TODO*/
+}
+
 #iteration-list {
     max-height: 30vh;
     overflow: scroll;
