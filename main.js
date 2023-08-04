@@ -13,7 +13,6 @@ const settings = new Store();
 let win;
 
 async function createWindow() {
-
     // Create the browser window.
     win = new BrowserWindow({
         width: 1280,
@@ -30,6 +29,8 @@ async function createWindow() {
     // Load app
     await win.loadFile(path.join(__dirname, "index.html"));
     win.webContents.openDevTools();
+
+    // settings.set("testing testing.testing testing", {"array": [0]})
 
     // rest of code..
 }

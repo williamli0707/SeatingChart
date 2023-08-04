@@ -7,10 +7,10 @@ let settings;
 ipcRenderer.invoke("settings.get", "classes").then((res) => {settings = res;});
 
 document.getElementById("test-button").addEventListener("click", () => {
-    loadClass("Test_class_of_2036");
+    loadClass("Test class of 2036");
 });
 
-document.getElementById("test-button-2").addEventListener("click", () => {
+document.getElementById("test-button-2").addEventListener("click", async () => {
     // document.getElementById("iteration-separator").classList.remove("d-none");
 });
 
@@ -35,6 +35,9 @@ document.getElementById("confirm-create-class").addEventListener("click", () => 
         document.getElementById("prompt-new-class-error").innerText = "Class name cannot be empty";
         return;
     }
+
+    // LMAO
+    className.replaceAll(" ", "⇪");
 
     toastNewClass.show();
     document.getElementById("open-new-class").setAttribute("class-name", className);
@@ -68,7 +71,7 @@ async function loadClass(className) {
     let res = (await ipcRenderer.invoke("settings.get", "classes"))[className];
     let students = res.students;
 
-    document.getElementById("title-name").innerText = "Seating chart for: " + className;
+    document.getElementById("title-name").innerText = "Seating chart for: " + className.replaceAll("⇪", " ");
 
     let studentList = document.getElementById("student-list").children[0];
     while(studentList.children[0]) studentList.children[0].remove();
@@ -102,7 +105,6 @@ async function loadClass(className) {
             let a = document.createElement("a");
             // TODO empty/unused seats
 
-            if(res.sea)
 
             // a.draggable = true;
             cell.appendChild(a);
@@ -143,7 +145,7 @@ async function loadClass(className) {
 async function loadIteration(className, iterNum) {
     let res = (await ipcRenderer.invoke("settings.get", "classes"))[className];
     let students = res.students;
-    // console.log(res.iterations[0])
+    console.log("loading iterations")
     document.getElementById("iterations-dropdown-label").innerText = "Iteration + " + (iterNum + 1);
     let r = res.rows, c = res.columns;
     for(let i = 0;i < r;i++) {
