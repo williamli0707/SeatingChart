@@ -80,9 +80,17 @@ function change(r, c) {
         document.getElementById("student-" + document.vars.grid[r][c].student).classList.add("student");
         cell.children[0].textContent = "";
         document.vars.grid[r][c] = new Seat(true, null);
+
+        button.setAttribute("x", "false")
     }
     else if(button.getAttribute("x") === "false") {
-        
+        cell.classList.add("cell-unoccupied");
+        cell.classList.remove("cell-empty");
+        button.classList.remove("bi-plus");
+        button.classList.add("bi-x");
+        document.vars.grid[r][c] = new Seat(false, null);
+
+        button.setAttribute("x", "true")
     }
     else {
         console.log("broken :(");
