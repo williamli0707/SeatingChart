@@ -41,7 +41,7 @@
     padding: 2px;
 }
 
-.unoccupied-cell {
+.cell-unoccupied {
     width: 100%;
     height: 100%;
     display: flex;
@@ -54,7 +54,7 @@
     padding: 2px;
 }
 
-.empty-cell {
+.cell-empty {
     width: 100%;
     height: 100%;
     display: flex;
@@ -87,6 +87,13 @@
 
 .hr {
     margin: 5px;
+}
+
+.add-seat-button {
+    height: 10%;
+    width: 10%;
+    top: 0;
+    right: 0;
 }
 
 #iteration-list {

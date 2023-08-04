@@ -69,21 +69,27 @@ document.getElementById("back-button").addEventListener("click", () => {
 
 async function loadClass(className) {
     let res = (await ipcRenderer.invoke("settings.get", "classes"))[className];
-    let students = res.students;
+    console.log(ipcRenderer.invoke("settings.get", "classes"))
+    document.vars.students = res.students;
+    document.vars.grid = [];
 
     document.getElementById("title-name").innerText = "Seating chart for: " + className.replaceAll("⇪", " ");
 
     let studentList = document.getElementById("student-list").children[0];
     while(studentList.children[0]) studentList.children[0].remove();
-    Object.values(students).map((student) => {
+    Object.values(document.vars.students).map((student) => {
         let element = document.createElement("li");
         element.draggable = true;
         element.classList.add("list-group-item");
         element.classList.add("student");
-        element.classList.add("student-unused");
+        // element.classList.add("student-unused"); TODO used/unused
         element.classList.add("nav-item");
+        element.id = "student-" + student.id;
         element.innerText = student.name;
         studentList.appendChild(element);
+
+        document.vars.students[student.id] = student;
+
         //nav-item student student-used list-group-item
     })
 
@@ -91,7 +97,8 @@ async function loadClass(className) {
     while(content.children.length) content.children[0].remove();
 
     // console.log(res.iterations[0])
-    let r = res.rows, c = res.columns;
+    r = res.rows;
+    c = res.columns;
     for(let i = 0;i < r;i++) {
         let row = document.createElement("div");
         row.classList.add("row");
@@ -99,12 +106,10 @@ async function loadClass(className) {
             let col = document.createElement("div");
             col.classList.add("col");
             let cell = document.createElement("div");
-            cell.classList.add("cell");
+            // cell.classList.add("cell");
             cell.draggable = true;
             cell.id = "cell-" + i + "-" + j;
             let a = document.createElement("a");
-            // TODO empty/unused seats
-
 
             // a.draggable = true;
             cell.appendChild(a);
@@ -129,7 +134,8 @@ async function loadClass(className) {
             element.appendChild(text);
             iterationList.appendChild(element);
         })
-        await loadIteration(className, res.iterations.length - 1);
+        // await loadIteration(className, res.iterations.length - 1);
+        update(res, res.iterations.length - 1);
     }
     else {
         let element = document.createElement("li");
@@ -139,20 +145,12 @@ async function loadClass(className) {
         text.innerText = "No iterations yet. ";
         element.appendChild(text);
         iterationList.appendChild(element);
+        update(res, -1);
     }
 }
 
 async function loadIteration(className, iterNum) {
-    let res = (await ipcRenderer.invoke("settings.get", "classes"))[className];
-    let students = res.students;
-    console.log("loading iterations")
-    document.getElementById("iterations-dropdown-label").innerText = "Iteration + " + (iterNum + 1);
-    let r = res.rows, c = res.columns;
-    for(let i = 0;i < r;i++) {
-        for(let j = 0;j < c;j++) {
-            document.getElementById("cell-" + i + "-" + j).children[0].textContent = students[res.iterations[iterNum].seats[i][j].student].name;
-        }
-    }
+    students = [];
 }
 
 

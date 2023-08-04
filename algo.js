@@ -4,7 +4,55 @@ BGBG
 front half, back half
 specific student next to each other
 */
+let { Seat, Student, Iteration } = require("./classes.js");
 
+document.vars = {};
+
+document.vars.grid = [];
+document.vars.students = {};
+document.vars.r = 0;
+document.vars.c = 0;
+
+console.log(document.vars)
+
+var update = (res, iter) => {
+    if(iter === -1) {
+        //make empty
+        console.log("empty");
+        return;
+    }
+
+    //update grid stuff
+    document.vars.students = res.students;
+    console.log("loading iterations")
+    document.getElementById("iterations-dropdown-label").innerText = "Iteration + " + (iter + 1);
+    let r = res.rows, c = res.columns;
+    for(let i = 0;i < r;i++) {
+        document.vars.grid[i] = [];
+        for(let j = 0;j < c;j++) {
+            let cell = document.getElementById("cell-" + i + "-" + j);
+            let button = document.createElement("i");
+            button.classList.add("bi");
+            if(res.iterations[iter].seats[i][j].student) {
+                cell.children[0].textContent = document.vars.students[res.iterations[iter].seats[i][j].student].name;
+                cell.classList.add("cell");
+                button.classList.add("bi-x");
+                document.vars.grid[i][j] = new Seat(false, res.iterations[iter].seats[i][j].student);
+                document.getElementById("student-" + document.vars.grid[i][j].student).classList.add("student-used");
+            }
+            else if(!res.iterations[iter].seats[i][j].empty) {
+                cell.classList.add("cell-unoccupied");
+                button.classList.add("bi-x");
+                document.vars.grid[i][j] = new Seat(false, null);
+            }
+            else {
+                cell.classList.add("cell-empty");
+                button.classList.add("bi-plus");
+                document.vars.grid[i][j] = new Seat(true, null);
+            }
+        }
+    }
+}
 
 /**
  * shuffles an array of stuff
