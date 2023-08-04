@@ -73,12 +73,17 @@ function change(r, c) {
 
     if(button.getAttribute("x") === "true") {
         cell.classList.add("cell-empty");
-        cell.classList.remove("cell");
         button.classList.remove("bi-x");
         button.classList.add("bi-plus");
-        document.getElementById("student-" + document.vars.grid[r][c].student).classList.remove("student-used");
-        document.getElementById("student-" + document.vars.grid[r][c].student).classList.add("student");
-        cell.children[0].textContent = "";
+
+        if (cell.classList.contains("cell")) {
+            cell.classList.remove("cell");
+            document.getElementById("student-" + document.vars.grid[r][c].student).classList.remove("student-used");
+            document.getElementById("student-" + document.vars.grid[r][c].student).classList.add("student");
+            cell.children[0].textContent = "";
+        }
+        else cell.classList.remove("cell-unoccupied");
+
         document.vars.grid[r][c] = new Seat(true, null);
 
         button.setAttribute("x", "false")
