@@ -29,12 +29,6 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul id="navbar-extras" class="navbar-nav ms-auto">
-                    <!--                    <li class="nav-item">-->
-                    <!--                        <a class="nav-link active" aria-current="page" href="#">Home</a>-->
-                    <!--                    </li>-->
-                    <!--                    <li class="nav-item">-->
-                    <!--                        <a class="nav-link" href="#">Link</a>-->
-                    <!--                    </li>-->
                     <li class="nav-item dropdown">
                         <a id="iterations-dropdown-label" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
                            aria-expanded="false">
@@ -43,14 +37,7 @@
                         <ul id="iterations" class="dropdown-menu">
                             <div id="iteration-list">
                                 <li><a class="dropdown-item" href="#">Classes 1</a></li>
-                                <!--                                    <li><a class="dropdown-item" href="#">Another action</a></li>-->
-                                <!--                                    <li><a class="dropdown-item active" href="#">Another action</a></li>-->
-                                <!--                                    <li></li>-->
                             </div>
-<!--                            <li>-->
-<!--                                <hr class="dropdown-divider">-->
-<!--                            </li>-->
-<!--                            <li><a class="dropdown-item" href="#">Something else here</a></li>-->
                         </ul>
                     </li>
                     <li class="nav-item dropdown">
@@ -61,30 +48,14 @@
                         <ul id="shuffle" class="dropdown-menu">
                             <div id="shuffle-list">
                                 <li><a class="dropdown-item" href="#">No iterations found</a></li>
-                                <!--                                    <li><a class="dropdown-item" href="#">Another action</a></li>-->
-                                <!--                                    <li><a class="dropdown-item active" href="#">Another action</a></li>-->
-                                <!--                                    <li></li>-->
                             </div>
-                            <!--                            <li>-->
-                            <!--                                <hr class="dropdown-divider">-->
-                            <!--                            </li>-->
-                            <!--                            <li><a class="dropdown-item" href="#">Something else here</a></li>-->
                         </ul>
                     </li>
-                    <!--                    <li class="nav-item">-->
-                    <!--                        <a class="nav-link disabled">Disabled</a>-->
-                    <!--                    </li>-->
                 </ul>
-                <!--                <form id="add-container" class="d-flex me-0">-->
-                <!--                    <input id="add-form" class="form-control me-2" type="search" placeholder="Names separated by commas"-->
-                <!--                           aria-label="add-student">-->
-                <!--                    <button class="btn btn-outline-success" type="submit">Add Student</button>-->
-                <!--                </form>-->
                 <button class="btn btn-outline-info nav-item-right">Students</button>
             </div>
         </div>
     </nav>
-    <!--            <p class="centered">No iterations found</p>-->
     <div id="content" class="">
         <div id="iteration-content">
             <div class="row">
@@ -236,11 +207,15 @@
         </div>
     </div>
     <div id="footer">
+        <button id="test-button-3" class="btn btn-primary footer-button" data-bs-toggle="modal"
+                data-bs-target="#add-students" aria-expanded="false" aria-controls="add-students">test3
+        </button>
         <button id="test-button-2" class="btn btn-primary footer-button" data-bs-toggle="collapse"
                 data-bs-target="#student-sidebar" aria-expanded="false" aria-controls="student-sidebar">test2
         </button>
         <button id="test-button" class="btn btn-primary footer-button">test</button>
-        <button id="save-as-new-iteration" class="btn btn-primary footer-button">Save as new iteration</button>
+        <button id="save-to-current" class="btn btn-primary footer-button">Save to current iteration</button>
+        <button id="save-as-new" class="btn btn-primary footer-button">Save as new iteration</button>
     </div>
     <div class="modal fade" id="prompt-new-class" tabindex="-1" aria-labelledby="promptNewClass" aria-hidden="true">
         <div class="modal-dialog">
@@ -275,7 +250,13 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-
+                    <div>
+                        <p>Enter student names below, one per line:</p>
+                        <textarea id="student-names" name="student-names" rows="10" cols="50"></textarea>
+                    </div>
+                    <p>Or import from CSV File</p>
+                    <input type="file" id="student-file-import" name="student-file-import" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
+<!--                    TODO-->
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -312,9 +293,6 @@
                     Classes
                 </a>
                 <ul id="dropdown" class="dropdown-expand collapse collapsed" aria-labelledby="dropdown">
-                    <!--                            <li><a class="nav-link" href="#">Item 1</a> </li>-->
-                    <!--                            <li><a class="nav-link" href="#">Item 2</a> </li>-->
-                    <!--                            <li><a class="nav-link" href="#">Item 3</a> </li>-->
                     <li>
                         <button id="add-class" class="btn btn-primary" data-bs-toggle="modal"
                                 data-bs-target="#prompt-new-class">+ Add a new class

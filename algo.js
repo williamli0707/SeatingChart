@@ -17,7 +17,7 @@ console.log(document.vars)
 
 var update = (res, iter) => {
     if(iter === -1) {
-        //make empty
+        //TODO make empty
         console.log("empty");
         return;
     }
@@ -25,20 +25,25 @@ var update = (res, iter) => {
     //update grid stuff
     document.vars.students = res.students;
     console.log("loading iterations")
-    document.getElementById("iterations-dropdown-label").innerText = "Iteration + " + (iter + 1);
+    document.getElementById("iterations-dropdown-label").innerText = "Iteration " + (iter + 1);
+    document.getElementById("iteration-" + iter).classList.add("active");
     let r = res.rows, c = res.columns;
     for(let i = 0;i < r;i++) {
         document.vars.grid[i] = [];
         for(let j = 0;j < c;j++) {
             let cell = document.getElementById("cell-" + i + "-" + j);
-            let button = document.createElement("i");
+            let button = document.createElement("a");
+            button.href = "#";
             button.classList.add("bi");
+            button.classList.add("seat-button")
             if(res.iterations[iter].seats[i][j].student) {
                 cell.children[0].textContent = document.vars.students[res.iterations[iter].seats[i][j].student].name;
                 cell.classList.add("cell");
                 button.classList.add("bi-x");
                 document.vars.grid[i][j] = new Seat(false, res.iterations[iter].seats[i][j].student);
                 document.getElementById("student-" + document.vars.grid[i][j].student).classList.add("student-used");
+
+
             }
             else if(!res.iterations[iter].seats[i][j].empty) {
                 cell.classList.add("cell-unoccupied");
@@ -50,6 +55,7 @@ var update = (res, iter) => {
                 button.classList.add("bi-plus");
                 document.vars.grid[i][j] = new Seat(true, null);
             }
+            cell.appendChild(button);
         }
     }
 }

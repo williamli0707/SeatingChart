@@ -53,7 +53,9 @@ document.getElementById("prompt-new-class").addEventListener("hidden.bs.modal", 
     document.getElementById("prompt-new-class-error").innerText = "";
 });
 
-//TODO close sidebar when background-lock is clicked
+document.getElementById("background-lock").addEventListener("click", () => {
+    document.getElementById("back-button").click();
+});
 
 document.getElementById("open-sidebar").addEventListener("click", () => {
     document.getElementById("background-lock").style.zIndex = "1";
@@ -82,7 +84,6 @@ async function loadClass(className) {
         element.draggable = true;
         element.classList.add("list-group-item");
         element.classList.add("student");
-        // element.classList.add("student-unused"); TODO used/unused
         element.classList.add("nav-item");
         element.id = "student-" + student.id;
         element.innerText = student.name;
@@ -130,6 +131,7 @@ async function loadClass(className) {
             let element = document.createElement("li");
             let text = document.createElement("a");
             text.classList.add("dropdown-item");
+            text.id = "iteration-" + (res.iterations.indexOf(i));
             text.innerText = "Iteration " + (res.iterations.indexOf(i) + 1);
             element.appendChild(text);
             iterationList.appendChild(element);
@@ -147,10 +149,6 @@ async function loadClass(className) {
         iterationList.appendChild(element);
         update(res, -1);
     }
-}
-
-async function loadIteration(className, iterNum) {
-    students = [];
 }
 
 
