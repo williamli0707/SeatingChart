@@ -36,6 +36,9 @@ var update = (res, iter) => {
             button.href = "#";
             button.classList.add("bi");
             button.classList.add("seat-button")
+            button.addEventListener("click", () => {
+                change(i, j);
+            });
             if(res.iterations[iter].seats[i][j].student) {
                 cell.children[0].textContent = document.vars.students[res.iterations[iter].seats[i][j].student].name;
                 cell.classList.add("cell");
@@ -43,21 +46,51 @@ var update = (res, iter) => {
                 document.vars.grid[i][j] = new Seat(false, res.iterations[iter].seats[i][j].student);
                 document.getElementById("student-" + document.vars.grid[i][j].student).classList.add("student-used");
 
-
+                button.setAttribute("x", "true")
             }
             else if(!res.iterations[iter].seats[i][j].empty) {
                 cell.classList.add("cell-unoccupied");
                 button.classList.add("bi-x");
                 document.vars.grid[i][j] = new Seat(false, null);
+
+                button.setAttribute("x", "true")
             }
             else {
                 cell.classList.add("cell-empty");
                 button.classList.add("bi-plus");
                 document.vars.grid[i][j] = new Seat(true, null);
+
+                button.setAttribute("x", "false")
             }
             cell.appendChild(button);
         }
     }
+}
+
+function change(r, c) {
+    let cell = document.getElementById("cell-" + r + "-" + c);
+    let button = cell.children[1];
+
+    if(button.getAttribute("x") === "true") {
+        cell.classList.add("cell-empty");
+        cell.classList.remove("cell");
+        button.classList.remove("bi-x");
+        button.classList.add("bi-plus");
+        document.getElementById("student-" + document.vars.grid[r][c].student).classList.remove("student-used");
+        document.getElementById("student-" + document.vars.grid[r][c].student).classList.add("student");
+        cell.children[0].textContent = "";
+        document.vars.grid[r][c] = new Seat(true, null);
+    }
+    else if(button.getAttribute("x") === "false") {
+        
+    }
+    else {
+        console.log("broken :(");
+    }
+}
+
+function addSeat(r, c) {
+
 }
 
 /**

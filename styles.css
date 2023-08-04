@@ -58,6 +58,7 @@ a.bi {
     border-style: solid;
     border-width: 1px;
     padding: 2px;
+    position: relative;
 }
 
 .cell-empty {
@@ -67,10 +68,8 @@ a.bi {
     align-items: center;
     justify-content: center;
     /*border-radius: 10px;*/
-    border-color: black;
-    border-style: solid;
-    border-width: 1px;
     padding: 2px;
+    position: relative;
 }
 
 .footer-button {
