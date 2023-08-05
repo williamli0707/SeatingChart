@@ -9,6 +9,8 @@ document.vars.students = {};
 document.vars.r = 0;
 document.vars.c = 0;
 
+let transferType = "";
+
 let newClassModal = new bootstrap.Modal(document.getElementById('prompt-new-class'), {});
 let toastNewClass = bootstrap.Toast.getOrCreateInstance(document.getElementById('toast-new-class'));
 
@@ -22,7 +24,12 @@ document.getElementById("open-new-class").addEventListener("click", () => {
 });
 
 document.getElementById("confirm-add-students").addEventListener("click", () => {
-    
+    let students = document.getElementById("student-names").value.split(/\r?\n/);
+    students.forEach((student) => {
+        let id = Date.now();
+        while(document.vars.students[id.toString()]) id++;
+        document.vars.students[id.toString()] = new Student(null, null, student, null, id.toString());
+    });
 });
 
 document.getElementById("confirm-create-class").addEventListener("click", () => {
@@ -209,11 +216,10 @@ function loadIteration(res, iter) {
             if(res.iterations[iter].seats[i][j].student) {
                 cell.children[0].textContent = document.vars.students[res.iterations[iter].seats[i][j].student].name;
                 cell.classList.add("cell");
-                cell.setAttribute("student", res.iterations[iter].seats[i][j].student);
                 button.classList.add("bi-x");
                 document.vars.grid[i][j] = new Seat(false, res.iterations[iter].seats[i][j].student);
                 document.getElementById("student-" + document.vars.grid[i][j].student).classList.add("student-used");
-                document.getElementById("student-" + document.vars.grid[i][j].student).setAttribute("seat", i + "-" + j);
+                document.vars.students[document.vars.grid[i][j].student].r = i; document.vars.students[document.vars.grid[i][j].student].c = j;
 
                 button.setAttribute("x", "true")
             }
@@ -247,14 +253,14 @@ function change(r, c) {
 
         if (cell.classList.contains("cell")) {
             cell.classList.remove("cell");
-            cell.removeAttribute("student");
 
             let old = document.getElementById("student-" + document.vars.grid[r][c].student);
             old.classList.remove("student-used");
             old.classList.add("student");
-            old.removeAttribute("seat");
+            document.vars.students[document.vars.grid[r][c].student].r = null; document.vars.students[document.vars.grid[r][c].student].c = null;
 
             cell.children[0].textContent = "";
+            document.vars.grid[r][c].student = null;
         }
         else cell.classList.remove("cell-unoccupied");
 
@@ -280,33 +286,38 @@ function change(r, c) {
 //0 for drag, 1 for swap
 function studentDragStart(e, studentID) {
     e.dataTransfer.setData("text/plain", "drag" + studentID);
+    transferType = "drag";
 }
 
 function cellDragStart(e, r, c) {
     e.dataTransfer.setData("text/plain", "swap" + r + "-" + c);
+    transferType = "swap";
 }
 
 function cellDragEnter(e) {
-    if (!e.target.classList.contains("cell-empty") || e.dataTransfer.getData("text/plain").startsWith("swap")){
+    if (!e.target.classList.contains("cell-empty") || transferType === "swap"){
         e.preventDefault();
         e.target.classList.add("cell-hover");
     }
 }
 
 function cellDragOver(e) {
-    if (!e.target.classList.contains("cell-empty") || e.dataTransfer.getData("text/plain").startsWith("swap")){
+    console.log("dragover " + e.target.id);
+    console.log("datatransfer " + e.dataTransfer.getData("text/plain"));
+    if (!e.target.classList.contains("cell-empty") || transferType === "swap"){
         e.preventDefault();
     }
 }
 
 function cellDragLeave(e) {
-    if (!e.target.classList.contains("cell-empty") || e.dataTransfer.getData("text/plain").startsWith("swap")){
+    if (!e.target.classList.contains("cell-empty") || transferType === "swap"){
         e.target.classList.remove("cell-hover");
     }
 }
 
 function cellDrop(e) {
-    console.log("drpp " + e.target.id);
+    console.log("drop " + e.target.id)
+    console.log("drop datatransfer " + e.dataTransfer.getData("text/plain"));
     // console.log(e.target.classList);
     // console.log(e.dataTransfer.getData("text/plain"));
     //e.target must have cell-empty, cell-unoccupied, or cell
@@ -316,12 +327,12 @@ function cellDrop(e) {
         let newid = e.dataTransfer.getData("text/plain").substring(4);
         console.log("student " + newid + " dropped on cell " + e.target.id);
         let newstudent = document.getElementById("student-" + newid);
-        let newseat = newstudent.getAttribute("seat");
 
-        if (newseat) {
+        if (document.vars.students[newid].r != null) {
             //if student was in another seat before this
-            let coords = newseat.split("-");
-            let r = parseInt(coords[0]), c = parseInt(coords[1]);
+            // let coords = newseat.split("-");
+            // let r = parseInt(coords[0]), c = parseInt(coords[1]);
+            let r = document.vars.students[newid].r, c = document.vars.students[newid].c;
             let cell = document.getElementById("cell-" + r + "-" + c);
             let button = cell.children[1];
 
@@ -335,7 +346,7 @@ function cellDrop(e) {
 
             document.vars.grid[r][c] = new Seat(false, null);
 
-            document.getElementById("student-" + newid).removeAttribute("seat");
+            document.vars.students[newid].r = null; document.vars.students[newid].c = null;
         }
 
         let cell = e.target;
@@ -344,16 +355,17 @@ function cellDrop(e) {
         let r = parseInt(coords[0]), c = parseInt(coords[1]);
         if (cell.classList.contains("cell")) {
             //if student was already in this seat - displaced
-            let old = document.getElementById("student-" + e.target.getAttribute("student"));
+            let oldid = document.vars.grid[r][c].student;
+            let old = document.getElementById("student-" + oldid);
             old.classList.remove("student-used");
             old.classList.add("student");
-            old.removeAttribute("seat");
+            document.vars.students[oldid].r = null; document.vars.students[oldid].c = null;
         }
         cell.classList.remove("cell-unoccupied");
         cell.classList.add("cell");
-        cell.setAttribute("student", newid);
+        document.vars.grid[r][c].student = newid;
         cell.children[0].textContent = document.vars.students[newid].name;
-        newstudent.setAttribute("seat", r + "-" + c);
+        document.vars.students[newid].r = r; document.vars.students[newid].c = c;
         newstudent.classList.add("student-used");
 
         document.vars.grid[r][c] = new Seat(false, newid);
@@ -378,12 +390,11 @@ function cellDrop(e) {
             ocell.classList.remove("cell");
             ocell.classList.remove("cell-unoccupied");
             ocell.classList.add("cell-empty");
-            ocell.removeAttribute("student");
+            document.vars.grid[or][oc].student = null;
             ocell.children[0].textContent = "";
             obutton.classList.remove("bi-x");
             obutton.classList.add("bi-plus");
             obutton.setAttribute("x", "false");
-            document.getElementById("cell-" + or + "-" + oc).removeAttribute("student");
         }
         else if(!tseat.student) {
             //if target seat is unoccupied, original seat will be unoccupied
@@ -391,12 +402,11 @@ function cellDrop(e) {
             ocell.classList.remove("cell");
             ocell.classList.remove("cell-empty");
             ocell.classList.add("cell-unoccupied");
-            ocell.removeAttribute("student");
+            document.vars.grid[or][oc].student = null;
             ocell.children[0].textContent = "";
             obutton.classList.remove("bi-plus");
             obutton.classList.add("bi-x");
             obutton.setAttribute("x", "true");
-            document.getElementById("cell-" + or + "-" + oc).removeAttribute("student");
         }
         else {
             //if target seat has a student, original seat will now have that student
@@ -404,13 +414,12 @@ function cellDrop(e) {
             ocell.classList.remove("cell-unoccupied");
             ocell.classList.remove("cell-empty");
             ocell.classList.add("cell");
-            ocell.removeAttribute("student");
             ocell.children[0].textContent = document.vars.students[tseat.student].name;
             obutton.classList.remove("bi-plus");
             obutton.classList.add("bi-x");
             obutton.setAttribute("x", "true");
-            document.getElementById("student-" + tseat.student).setAttribute("seat", or + "-" + oc);
-            document.getElementById("cell-" + or + "-" + oc).setAttribute("student", tseat.student);
+            document.vars.students[tseat.student].r = or; document.vars.students[tseat.student].c = oc;
+            document.vars.grid[or][oc].student = tseat.student;
         }
 
 
@@ -420,12 +429,11 @@ function cellDrop(e) {
             tcell.classList.remove("cell");
             tcell.classList.remove("cell-unoccupied");
             tcell.classList.add("cell-empty");
-            tcell.removeAttribute("student");
+            document.vars.grid[tr][tc].student = null;
             tcell.children[0].textContent = "";
             tbutton.classList.remove("bi-x");
             tbutton.classList.add("bi-plus");
             tbutton.setAttribute("x", "false");
-            document.getElementById("cell-" + tr + "-" + tc).removeAttribute("student");
         }
         else if(!oseat.student) {
             //if original seat is unoccupied, target seat will be unoccupied
@@ -433,12 +441,11 @@ function cellDrop(e) {
             tcell.classList.remove("cell");
             tcell.classList.remove("cell-empty");
             tcell.classList.add("cell-unoccupied");
-            tcell.removeAttribute("student");
+            document.vars.grid[tr][tc].student = null;
             tcell.children[0].textContent = "";
             tbutton.classList.remove("bi-plus");
             tbutton.classList.add("bi-x");
             tbutton.setAttribute("x", "true");
-            document.getElementById("cell-" + tr + "-" + tc).removeAttribute("student");
         }
         else {
             //if original seat has a student, target seat will now have that student
@@ -446,13 +453,12 @@ function cellDrop(e) {
             tcell.classList.remove("cell-unoccupied");
             tcell.classList.remove("cell-empty");
             tcell.classList.add("cell");
-            tcell.removeAttribute("student");
             tcell.children[0].textContent = document.vars.students[oseat.student].name;
             tbutton.classList.remove("bi-plus");
             tbutton.classList.add("bi-x");
             tbutton.setAttribute("x", "true");
-            document.getElementById("student-" + oseat.student).setAttribute("seat", tr + "-" + tc);
-            document.getElementById("cell-" + tr + "-" + tc).setAttribute("student", tseat.student);
+            document.vars.students[oseat.student].r = tr; document.vars.students[oseat.student].c = tc;
+            document.vars.grid[tr][tc].student = oseat.student;
         }
     }
 }
