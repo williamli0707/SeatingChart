@@ -71,9 +71,13 @@ document.getElementById("confirm-create-class").addEventListener("click", async 
         document.getElementById("prompt-new-class-error").innerText = "Class name cannot be empty";
         return;
     }
+    if(className.includes("`")) {
+        document.getElementById("prompt-new-class-error").innerText = "The character '`' is not allowed in class names";
+        return;
+    }
 
     // LMAO
-    // className.replaceAll(" ", "⇪");
+    className = className.replaceAll(".", "`");
 
     toastNewClass.show();
     document.getElementById("open-new-class").setAttribute("class-name", className);
@@ -116,8 +120,7 @@ async function loadClass(className) {
     console.log(ipcRenderer.invoke("settings.get", "classes"))
     document.vars.students = res.students;
     document.vars.grid = [];
-
-    document.getElementById("title-name").innerText = "Seating chart for: " + className;
+    document.getElementById("title-name").innerText = "Seating chart for: " + className.replaceAll("`", ".");
     currentClass = className;
 
     let studentList = document.getElementById("student-list").children[0];
