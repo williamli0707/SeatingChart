@@ -1,5 +1,14 @@
 const { ipcRenderer } = require('electron');
 
+let { Seat, Student, Iteration } = require("./classes.js");
+
+document.vars = {};
+
+document.vars.grid = [];
+document.vars.students = {};
+document.vars.r = 0;
+document.vars.c = 0;
+
 let newClassModal = new bootstrap.Modal(document.getElementById('prompt-new-class'), {});
 let toastNewClass = bootstrap.Toast.getOrCreateInstance(document.getElementById('toast-new-class'));
 
@@ -7,10 +16,6 @@ let settings;
 ipcRenderer.invoke("settings.get", "classes").then((res) => {settings = res;});
 
 loadClass("Test class of 2036");
-
-document.getElementById("test-button-2").addEventListener("click", async () => {
-    // document.getElementById("iteration-separator").classList.remove("d-none");
-});
 
 document.getElementById("open-new-class").addEventListener("click", () => {
     loadClass(document.getElementById("open-new-class").getAttribute("class-name"));
@@ -155,7 +160,7 @@ async function loadClass(className) {
             iterationList.appendChild(element);
         })
         // await loadIteration(className, res.iterations.length - 1);
-        update(res, res.iterations.length - 1);
+        loadIteration(res, res.iterations.length - 1);
     }
     else {
         let element = document.createElement("li");
@@ -165,9 +170,104 @@ async function loadClass(className) {
         text.innerText = "No iterations yet. ";
         element.appendChild(text);
         iterationList.appendChild(element);
-        update(res, -1);
+        loadIteration(res, -1);
     }
 }
+
+function loadIteration(res, iter) {
+    if(iter === -1) {
+        //TODO make empty
+        console.log("empty");
+        return;
+    }
+
+    //update grid stuff
+    document.vars.students = res.students;
+    console.log("loading iterations")
+    document.getElementById("iterations-dropdown-label").innerText = "Iteration " + (iter + 1);
+    document.getElementById("iteration-" + iter).classList.add("active");
+    let r = res.rows, c = res.columns;
+    for(let i = 0;i < r;i++) {
+        document.vars.grid[i] = [];
+        for(let j = 0;j < c;j++) {
+            let cell = document.getElementById("cell-" + i + "-" + j);
+            let button = document.createElement("a");
+            button.href = "#";
+            button.classList.add("bi");
+            button.classList.add("seat-button")
+            button.addEventListener("click", () => {
+                change(i, j);
+            });
+            if(res.iterations[iter].seats[i][j].student) {
+                cell.children[0].textContent = document.vars.students[res.iterations[iter].seats[i][j].student].name;
+                cell.classList.add("cell");
+                cell.setAttribute("student", res.iterations[iter].seats[i][j].student);
+                button.classList.add("bi-x");
+                document.vars.grid[i][j] = new Seat(false, res.iterations[iter].seats[i][j].student);
+                document.getElementById("student-" + document.vars.grid[i][j].student).classList.add("student-used");
+                document.getElementById("student-" + document.vars.grid[i][j].student).setAttribute("seat", i + "-" + j);
+
+                button.setAttribute("x", "true")
+            }
+            else if(!res.iterations[iter].seats[i][j].empty) {
+                cell.classList.add("cell-unoccupied");
+                button.classList.add("bi-x");
+                document.vars.grid[i][j] = new Seat(false, null);
+
+                button.setAttribute("x", "true")
+            }
+            else {
+                cell.classList.add("cell-empty");
+                button.classList.add("bi-plus");
+                document.vars.grid[i][j] = new Seat(true, null);
+
+                button.setAttribute("x", "false")
+            }
+            cell.appendChild(button);
+        }
+    }
+}
+
+function change(r, c) {
+    let cell = document.getElementById("cell-" + r + "-" + c);
+    let button = cell.children[1];
+
+    if(button.getAttribute("x") === "true") {
+        cell.classList.add("cell-empty");
+        button.classList.remove("bi-x");
+        button.classList.add("bi-plus");
+
+        if (cell.classList.contains("cell")) {
+            cell.classList.remove("cell");
+            cell.removeAttribute("student");
+
+            let old = document.getElementById("student-" + document.vars.grid[r][c].student);
+            old.classList.remove("student-used");
+            old.classList.add("student");
+            old.removeAttribute("seat");
+
+            cell.children[0].textContent = "";
+        }
+        else cell.classList.remove("cell-unoccupied");
+
+        document.vars.grid[r][c] = new Seat(true, null);
+
+        button.setAttribute("x", "false")
+    }
+    else if(button.getAttribute("x") === "false") {
+        cell.classList.add("cell-unoccupied");
+        cell.classList.remove("cell-empty");
+        button.classList.remove("bi-plus");
+        button.classList.add("bi-x");
+        document.vars.grid[r][c] = new Seat(false, null);
+
+        button.setAttribute("x", "true")
+    }
+    else {
+        console.log("broken :(");
+    }
+}
+
 
 //0 for drag, 1 for swap
 function studentDragStart(e, studentID) {

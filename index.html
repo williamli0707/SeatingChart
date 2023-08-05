@@ -52,7 +52,8 @@
                         </ul>
                     </li>
                 </ul>
-                <button class="btn btn-outline-info nav-item-right">Students</button>
+                <button class="btn btn-outline-info nav-item-right" data-bs-toggle="collapse"
+                        data-bs-target="#student-sidebar" aria-expanded="false" aria-controls="student-sidebar">Students</button>
             </div>
         </div>
     </nav>
@@ -72,21 +73,15 @@
                     </ul>
                 </div>
                 <div class="hr"></div>
-                <button class="btn btn-primary">+ Add students</button>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#add-students" aria-expanded="false" aria-controls="add-students">+ Add students</button>
             </div>
         </div>
     </div>
     <div id="footer">
-        <button id="test-button-3" class="btn btn-primary footer-button" data-bs-toggle="modal"
-                data-bs-target="#add-students" aria-expanded="false" aria-controls="add-students">test3
-<!--            TODO can make space with this button-->
-        </button>
-        <button id="test-button-2" class="btn btn-primary footer-button" data-bs-toggle="collapse"
-                data-bs-target="#student-sidebar" aria-expanded="false" aria-controls="student-sidebar">test2
-        </button>
-        <button id="test-button" class="btn btn-primary footer-button">test</button>
-        <button id="save-to-current" class="btn btn-primary footer-button">Save to current iteration</button>
-        <button id="save-as-new" class="btn btn-primary footer-button">Save as new iteration</button>
+        <button id="test-button" class="btn btn-primary footer-item">test</button>
+        <p class="footer-item d-none"><i>Changes have been made</i></p>
+        <button id="save-to-current" class="btn btn-primary footer-item">Save to current iteration</button>
+        <button id="save-as-new" class="btn btn-primary footer-item">Save as new iteration</button>
     </div>
     <div class="modal fade" id="prompt-new-class" tabindex="-1" aria-labelledby="promptNewClass" aria-hidden="true">
         <div class="modal-dialog">
