@@ -51,7 +51,6 @@ document.getElementById("confirm-add-students").addEventListener("click", () => 
         await ipcRenderer.invoke("settings.set", "classes." + currentClass + ".students." + id.toString(), document.vars.students[id.toString()]);
     });
 
-    //TODO add to settings
     newStudentsModal.hide();
 });
 
@@ -164,9 +163,11 @@ async function loadClass(className) {
                 cellDragStart(e, i, j);
             });
             let a = document.createElement("a");
+            let button = document.createElement("a");
             a.style.zIndex = "-1";
 
             cell.appendChild(a);
+            cell.appendChild(button);
             col.appendChild(cell);
             row.appendChild(col);
 
@@ -219,8 +220,25 @@ async function loadClass(className) {
 
 function loadIteration(res, iter) {
     if(iter === -1) {
-        //TODO make empty
-        console.log("empty");
+        let r = res.rows, c = res.columns;
+        for(let i = 0;i < r;i++) {
+            document.vars.grid[i] = [];
+            for(let j = 0;j < c;j++) {
+                let cell = document.getElementById("cell-" + i + "-" + j);
+                let button = cell.children[1];
+                button.href = "#";
+                button.classList.add("bi");
+                button.classList.add("seat-button")
+                button.addEventListener("click", () => {
+                    change(i, j);
+                });
+                cell.classList.add("cell-empty");
+                button.classList.add("bi-plus");
+                document.vars.grid[i][j] = new Seat(true, null);
+                button.setAttribute("x", "false")
+                cell.appendChild(button);
+            }
+        }
         return;
     }
 
@@ -234,7 +252,8 @@ function loadIteration(res, iter) {
         document.vars.grid[i] = [];
         for(let j = 0;j < c;j++) {
             let cell = document.getElementById("cell-" + i + "-" + j);
-            let button = document.createElement("a");
+            let button = cell.children[1];
+            button.className = "";
             button.href = "#";
             button.classList.add("bi");
             button.classList.add("seat-button")
