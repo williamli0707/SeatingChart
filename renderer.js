@@ -17,8 +17,32 @@ let toastNewClass = bootstrap.Toast.getOrCreateInstance(document.getElementById(
 
 let currentClass;
 
-let settings;
-ipcRenderer.invoke("settings.get", "classes").then((res) => {settings = res;});
+let settings, archived;
+ipcRenderer.invoke("settings.get", "classes").then((res) => {
+    settings = res;
+    Object.keys(settings).map(function(key) {
+        console.log(key);
+        let element = document.createElement("li");
+        let a = document.createElement("a");
+        a.classList.add("nav-link");
+        a.href = "#";
+        a.innerText = key.replaceAll("`", ".");
+        element.appendChild(a);
+        document.getElementById("dropdown-classes").appendChild(element);
+    });
+});
+ipcRenderer.invoke("settings.get", "archived").then((res) => {
+    archived = res;
+    Object.keys(archived).map(function(key) {
+        let element = document.createElement("li");
+        let a = document.createElement("a");
+        a.classList.add("nav-link");
+        a.href = "#";
+        a.innerText = key.replaceAll("`", ".");
+        element.appendChild(a);
+        document.getElementById("dropdown-classes-archived").appendChild(element);
+    });
+});
 
 loadClass("Test class of 2036");
 
@@ -103,16 +127,24 @@ document.getElementById("background-lock").addEventListener("click", () => {
     document.getElementById("back-button").click();
 });
 
-document.getElementById("open-sidebar").addEventListener("click", () => {
+document.getElementById("sidebar").addEventListener("shown.bs.collapse", () => {
     document.getElementById("background-lock").style.zIndex = "1";
     document.getElementById("background-lock").style.opacity = "0.5";
     document.getElementById("sidebar").style.zIndex = "2";
 });
 
-document.getElementById("back-button").addEventListener("click", () => {
+document.getElementById("sidebar").addEventListener("hidden.bs.collapse", () => {
     document.getElementById("background-lock").style.zIndex = "-1";
     document.getElementById("background-lock").style.opacity = "0";
     document.getElementById("sidebar").style.zIndex = "0";
+});
+
+document.getElementById("save-as-new").addEventListener("click", async () => {
+    //TODO
+});
+
+document.getElementById("save-to-current").addEventListener("click", async () => {
+
 });
 
 async function loadClass(className) {
@@ -511,8 +543,9 @@ function clone(obj) {
 
 
 /*
-TODO:
-- copy layout
-- clear students
-- expand and contract
+- TODO copy layout
+- TODO clear worksapce
+- TODO expand and contract
+- TODO save layout
+- TODO delete students
  */

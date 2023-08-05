@@ -13,6 +13,10 @@ const settings = new Store();
 let win;
 
 async function createWindow() {
+
+    if(!settings.get("classes")) settings.set("classes", {});
+    if(!settings.get("archived")) settings.set("archived", {});
+
     // Create the browser window.
     win = new BrowserWindow({
         width: 1280,
