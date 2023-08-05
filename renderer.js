@@ -12,7 +12,10 @@ document.vars.c = 0;
 let transferType = "";
 
 let newClassModal = new bootstrap.Modal(document.getElementById('prompt-new-class'), {});
+let newStudentsModal = new bootstrap.Modal(document.getElementById('add-students'), {});
 let toastNewClass = bootstrap.Toast.getOrCreateInstance(document.getElementById('toast-new-class'));
+
+let currentClass;
 
 let settings;
 ipcRenderer.invoke("settings.get", "classes").then((res) => {settings = res;});
@@ -25,14 +28,34 @@ document.getElementById("open-new-class").addEventListener("click", () => {
 
 document.getElementById("confirm-add-students").addEventListener("click", () => {
     let students = document.getElementById("student-names").value.split(/\r?\n/);
-    students.forEach((student) => {
+    students.forEach(async (student) => {
         let id = Date.now();
         while(document.vars.students[id.toString()]) id++;
         document.vars.students[id.toString()] = new Student(null, null, student, null, id.toString());
+
+        let element = document.createElement("li");
+        element.draggable = true;
+        element.classList.add("list-group-item");
+        element.classList.add("student");
+        element.classList.add("nav-item");
+        element.id = "student-" + id;
+        element.innerText = student.toString();
+        document.getElementById("student-list").children[0].appendChild(element);
+
+        //nav-item student student-used list-group-item
+
+        element.addEventListener("dragstart", (e) => {
+            studentDragStart(e, id.toString());
+        });
+
+        await ipcRenderer.invoke("settings.set", "classes." + currentClass + ".students." + id.toString(), document.vars.students[id.toString()]);
     });
+
+    //TODO add to settings
+    newStudentsModal.hide();
 });
 
-document.getElementById("confirm-create-class").addEventListener("click", () => {
+document.getElementById("confirm-create-class").addEventListener("click", async () => {
     let className = document.getElementById("class-name").value;
     let r = document.getElementById("class-size-r").value;
     let c = document.getElementById("class-size-c").value;
@@ -56,8 +79,10 @@ document.getElementById("confirm-create-class").addEventListener("click", () => 
     toastNewClass.show();
     document.getElementById("open-new-class").setAttribute("class-name", className);
 
-    ipcRenderer.invoke("add-class", [className, r, c]);
+    await ipcRenderer.invoke("add-class", [className, r, c]);
     newClassModal.hide();
+
+    await loadClass(className);
 });
 
 document.getElementById("prompt-new-class").addEventListener("hidden.bs.modal", () => {
@@ -93,27 +118,30 @@ async function loadClass(className) {
     document.vars.students = res.students;
     document.vars.grid = [];
 
-    document.getElementById("title-name").innerText = "Seating chart for: " + className.replaceAll("⇪", " ");
+    document.getElementById("title-name").innerText = "Seating chart for: " + className;
+    currentClass = className;
 
     let studentList = document.getElementById("student-list").children[0];
     while(studentList.children[0]) studentList.children[0].remove();
     Object.values(document.vars.students).map((student) => {
-        let element = document.createElement("li");
-        element.draggable = true;
-        element.classList.add("list-group-item");
-        element.classList.add("student");
-        element.classList.add("nav-item");
-        element.id = "student-" + student.id;
-        element.innerText = student.name;
-        studentList.appendChild(element);
+        if (!student.deleted) {
+            let element = document.createElement("li");
+            element.draggable = true;
+            element.classList.add("list-group-item");
+            element.classList.add("student");
+            element.classList.add("nav-item");
+            element.id = "student-" + student.id;
+            element.innerText = student.name;
+            studentList.appendChild(element);
 
-        document.vars.students[student.id] = student;
+            document.vars.students[student.id] = student;
 
-        //nav-item student student-used list-group-item
+            //nav-item student student-used list-group-item
 
-        element.addEventListener("dragstart", (e) => {
-            studentDragStart(e, student.id);
-        });
+            element.addEventListener("dragstart", (e) => {
+                studentDragStart(e, student.id);
+            });
+        }
     })
 
     let content = document.getElementById("iteration-content");
@@ -302,8 +330,6 @@ function cellDragEnter(e) {
 }
 
 function cellDragOver(e) {
-    console.log("dragover " + e.target.id);
-    console.log("datatransfer " + e.dataTransfer.getData("text/plain"));
     if (!e.target.classList.contains("cell-empty") || transferType === "swap"){
         e.preventDefault();
     }
@@ -317,15 +343,10 @@ function cellDragLeave(e) {
 
 function cellDrop(e) {
     console.log("drop " + e.target.id)
-    console.log("drop datatransfer " + e.dataTransfer.getData("text/plain"));
-    // console.log(e.target.classList);
-    // console.log(e.dataTransfer.getData("text/plain"));
     //e.target must have cell-empty, cell-unoccupied, or cell
     if (!e.target.classList.contains("cell-empty") && e.dataTransfer.getData("text/plain").startsWith("drag")) {
-        console.log("dragging");
         e.target.classList.remove("cell-hover");
         let newid = e.dataTransfer.getData("text/plain").substring(4);
-        console.log("student " + newid + " dropped on cell " + e.target.id);
         let newstudent = document.getElementById("student-" + newid);
 
         if (document.vars.students[newid].r != null) {
@@ -371,7 +392,6 @@ function cellDrop(e) {
         document.vars.grid[r][c] = new Seat(false, newid);
     }
     else if (e.dataTransfer.getData("text/plain").startsWith("swap")) {
-        console.log("swapping")
         let targetCoords = e.target.id.substring(5).split("-");
         let originCoords = e.dataTransfer.getData("text/plain").substring(4).split("-");
 
