@@ -116,17 +116,17 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <div>
+                    <div style="margin: 10px;">
                         <p>Enter student names below, one per line:</p>
-                        <textarea id="student-names" name="student-names" rows="10" cols="50"></textarea>
+                        <textarea id="student-names" name="student-names" rows="5" cols="50"></textarea>
+                        <button id="confirm-add-students" type="button" class="btn btn-outline-dark">Add</button>
                     </div>
                     <p>Or import from CSV File</p>
-                    <input type="file" id="student-file-import" name="student-file-import" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
+                    <input type="file" id="student-file-import" name="student-file-import" accept=".csv">
 <!--                    TODO-->
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button id="confirm-add-students" type="button" class="btn btn-primary">Create</button>
                 </div>
             </div>
         </div>

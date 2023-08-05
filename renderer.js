@@ -21,6 +21,10 @@ document.getElementById("open-new-class").addEventListener("click", () => {
     loadClass(document.getElementById("open-new-class").getAttribute("class-name"));
 });
 
+document.getElementById("confirm-add-students").addEventListener("click", () => {
+    
+});
+
 document.getElementById("confirm-create-class").addEventListener("click", () => {
     let className = document.getElementById("class-name").value;
     let r = document.getElementById("class-size-r").value;
@@ -40,7 +44,7 @@ document.getElementById("confirm-create-class").addEventListener("click", () => 
     }
 
     // LMAO
-    className.replaceAll(" ", "⇪");
+    // className.replaceAll(" ", "⇪");
 
     toastNewClass.show();
     document.getElementById("open-new-class").setAttribute("class-name", className);
@@ -54,6 +58,10 @@ document.getElementById("prompt-new-class").addEventListener("hidden.bs.modal", 
     document.getElementById("class-size-r").value = "";
     document.getElementById("class-size-c").value = "";
     document.getElementById("prompt-new-class-error").innerText = "";
+});
+
+document.getElementById("add-students").addEventListener("hidden.bs.modal", () => {
+    document.getElementById("student-names").value = "";
 });
 
 document.getElementById("background-lock").addEventListener("click", () => {
@@ -458,6 +466,5 @@ function clone(obj) {
 TODO:
 - copy layout
 - clear students
-- draggable swap
 - expand and contract
  */
