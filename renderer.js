@@ -14,8 +14,9 @@ let transferType = "";
 let newClassModal = new bootstrap.Modal(document.getElementById('prompt-new-class'), {});
 let newStudentsModal = new bootstrap.Modal(document.getElementById('add-students'), {});
 let toastNewClass = bootstrap.Toast.getOrCreateInstance(document.getElementById('toast-new-class'));
+let toastNewIter = bootstrap.Toast.getOrCreateInstance(document.getElementById('toast-new-iter'));
 
-let currentClass;
+let currentClass, currentIter = -1;
 
 let settings, archived;
 ipcRenderer.invoke("settings.get", "classes").then((res) => {
@@ -140,17 +141,28 @@ document.getElementById("sidebar").addEventListener("hidden.bs.collapse", () => 
 });
 
 document.getElementById("save-as-new").addEventListener("click", async () => {
-    //TODO
+    //there should be a better way to do this
+    let iterations = await ipcRenderer.invoke("settings.get", "classes." + currentClass + ".iterations");
+    iterations.push(new Iteration(document.vars.grid.length, document.vars.grid[0].length, document.vars.grid));
+    await ipcRenderer.invoke("settings.set", "classes." + currentClass + ".iterations", iterations);
+    document.getElementById("new-iter-message").children[0].innerText = "Saved to iteration " + iterations.length + "!";
+    toastNewIter.show();
+    await loadClass(currentClass);
 });
 
 document.getElementById("save-to-current").addEventListener("click", async () => {
-
+    let iterations = await ipcRenderer.invoke("settings.get", "classes." + currentClass + ".iterations");
+    iterations[currentIter] = new Iteration(document.vars.grid.length, document.vars.grid[0].length, document.vars.grid);
+    await ipcRenderer.invoke("settings.set", "classes." + currentClass + ".iterations", iterations);
+    document.getElementById("new-iter-message").children[0].innerText = "Saved to iteration " + (currentIter + 1) + "!";
+    toastNewIter.show();
 });
 
 async function loadClass(className) {
     let res = (await ipcRenderer.invoke("settings.get", "classes"))[className];
     console.log(ipcRenderer.invoke("settings.get", "classes"))
     document.vars.students = res.students;
+
     document.vars.grid = [];
     document.getElementById("title-name").innerText = "Seating chart for: " + className.replaceAll("`", ".");
     currentClass = className;
@@ -178,12 +190,56 @@ async function loadClass(className) {
         }
     })
 
+    console.log(res.iterations)
+
+    let iterationList = document.getElementById("iteration-list");
+    while(iterationList.children[0]) iterationList.children[0].remove();
+
+    if(res.iterations.length) {
+        res.iterations.forEach(i => {
+            let element = document.createElement("li");
+            let text = document.createElement("a");
+            let ind = res.iterations.indexOf(i);
+            text.classList.add("dropdown-item");
+            text.id = "iteration-" + ind;
+            text.innerText = "Iteration " + (ind + 1);
+            element.appendChild(text);
+            iterationList.appendChild(element);
+
+            element.addEventListener("click", () => {
+                // for(let i = 0;i < iterationList.children.length;i++) {
+                //     console.log("removing from " + iterationList.children[i].id)
+                //     iterationList.children[i].classList.remove("active");
+                // }
+                if(currentIter !== -1) document.getElementById("iteration-" + currentIter).classList.remove("active");
+                loadIteration(res, ind);
+            });
+        })
+        // await loadIteration(className, res.iterations.length - 1);
+        loadIteration(res, res.iterations.length - 1);
+    }
+    else {
+        let element = document.createElement("li");
+        let text = document.createElement("a");
+        text.classList.add("dropdown-item");
+        text.classList.add("disabled");
+        text.innerText = "No iterations yet. ";
+        element.appendChild(text);
+        iterationList.appendChild(element);
+        loadIteration(res, -1);
+    }
+}
+
+function loadIteration(res, iter) {
     let content = document.getElementById("iteration-content");
     while(content.children.length) content.children[0].remove();
 
     // console.log(res.iterations[0])
-    r = res.rows;
-    c = res.columns;
+    let r = res.rows, c = res.columns;
+    if(iter !== -1) {
+        r = res.iterations[iter].rows;
+        c = res.iterations[iter].columns;
+    }
     for(let i = 0;i < r;i++) {
         let row = document.createElement("div");
         row.classList.add("row");
@@ -223,39 +279,8 @@ async function loadClass(className) {
     }
     console.log("done loading rows and cols");
 
-    console.log(res.iterations)
 
-    let iterationList = document.getElementById("iteration-list");
-    while(iterationList.children[0]) iterationList.children[0].remove();
-
-    if(res.iterations.length) {
-        res.iterations.forEach(i => {
-            let element = document.createElement("li");
-            let text = document.createElement("a");
-            text.classList.add("dropdown-item");
-            text.id = "iteration-" + (res.iterations.indexOf(i));
-            text.innerText = "Iteration " + (res.iterations.indexOf(i) + 1);
-            element.appendChild(text);
-            iterationList.appendChild(element);
-        })
-        // await loadIteration(className, res.iterations.length - 1);
-        loadIteration(res, res.iterations.length - 1);
-    }
-    else {
-        let element = document.createElement("li");
-        let text = document.createElement("a");
-        text.classList.add("dropdown-item");
-        text.classList.add("disabled");
-        text.innerText = "No iterations yet. ";
-        element.appendChild(text);
-        iterationList.appendChild(element);
-        loadIteration(res, -1);
-    }
-}
-
-function loadIteration(res, iter) {
     if(iter === -1) {
-        let r = res.rows, c = res.columns;
         for(let i = 0;i < r;i++) {
             document.vars.grid[i] = [];
             for(let j = 0;j < c;j++) {
@@ -282,16 +307,15 @@ function loadIteration(res, iter) {
     console.log("loading iterations")
     document.getElementById("iterations-dropdown-label").innerText = "Iteration " + (iter + 1);
     document.getElementById("iteration-" + iter).classList.add("active");
-    let r = res.rows, c = res.columns;
+    currentIter = iter;
     for(let i = 0;i < r;i++) {
         document.vars.grid[i] = [];
         for(let j = 0;j < c;j++) {
             let cell = document.getElementById("cell-" + i + "-" + j);
             let button = cell.children[1];
-            button.className = "";
             button.href = "#";
             button.classList.add("bi");
-            button.classList.add("seat-button")
+            button.classList.add("seat-button");
             button.addEventListener("click", () => {
                 change(i, j);
             });
@@ -548,4 +572,5 @@ function clone(obj) {
 - TODO expand and contract
 - TODO save layout
 - TODO delete students
+- TODO delete iterations
  */

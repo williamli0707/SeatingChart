@@ -1,13 +1,11 @@
 class Iteration {
-    numStudents;
     rows;
-    cols;
-    grid;
-    constructor(n, r, c) {
-        this.numStudents = n;
+    columns;
+    seats;
+    constructor(r, c, seats) {
         this.rows = r;
-        this.cols = c;
-        this.grid = [];
+        this.columns = c;
+        this.seats = seats;
     }
 }
 
