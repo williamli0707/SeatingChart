@@ -48,10 +48,13 @@ ipcRenderer.invoke("settings.get", "archived").then((res) => {
 loadClass("Test class of 2036");
 
 document.getElementById("test-button").addEventListener("click", () => {
-    generate(document.vars.grid, {
-        shuffleFrontAndBackHalf: false,
-        alphaFirst: true,
-    });
+    // generate(document.vars.grid, {
+    //     shuffleFrontAndBackHalf: false,
+    //     alphaFirst: true,
+    // });
+    populate(document.vars.grid, {
+        sort: true
+    })
     loadIteration({
         "rows": document.vars.grid.length,
         "columns": document.vars.grid[0].length,
@@ -613,9 +616,9 @@ function generate(grid, options) {
         else {
             for (let i = 0; i < r / 2; i++) for (let j = 0; j < c; j++) grid[i][j] = front.pop();
             for (let i = r - 1; i > r / 2; i--) for (let j = 0; j < c; j++) grid[i][j] = back.pop();
-            for(let i = 0;i < c;i++) {
-                if(i % 2 === 0) grid[i][j] = front.pop();
-                else grid[i][j] = back.pop();
+            for(let j = 0;j < c;j++) {
+                if(j % 2 === 0) grid[r/2][j] = front.pop();
+                else grid[r/2][j] = back.pop();
             }
         }
 
@@ -673,6 +676,39 @@ function generate(grid, options) {
                 grid[i][j] = grid.pop();
             }
         }
+    }
+}
+
+function populate(grid, options) {
+    let r = grid.length, c = grid[0].length;
+    if(options.sort) {
+        let students = [];
+        Object.values(document.vars.students).forEach(student => {
+            students.push(student)
+            document.getElementById("student-" + student.id).classList.remove("student-used");
+        });
+        students.sort((a, b) => a.name.localeCompare(b.name));
+        console.log(students.length)
+
+        for(let i = 0;i < r;i++) {
+            for(let j = 0;j < c;j++) {
+                if(grid[i][j].student) grid[i][j].student = null;
+            }
+        }
+
+        for(let j = c - 1;j >= 0;j--) {
+            for(let i = 0;i < r;i++) {
+                if(!grid[i][j].empty && students.length) {
+                    grid[i][j] = new Seat(false, students.pop().id);
+                    // console.log("adding student " + grid[i][j].student + " to " + i + ", " + j);
+                    console.log("adding student")
+                    document.getElementById("student-" + grid[i][j].student).classList.add("student-used");
+                }
+            }
+        }
+    }
+    else {
+
     }
 }
 
