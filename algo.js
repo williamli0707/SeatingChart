@@ -32,7 +32,7 @@ function generate(grid, options) {
 
         //init front/back
         let front = [], back = []
-        if(rows % 2 === 0) {
+        if(r % 2 === 0) {
             for (let i = 0; i < r / 2; i++) for (let j = 0; j < c; j++) back.push(grid[i][j]);
             for (let i = r - 1; i >= r / 2; i--) for (let j = 0; j < c; j++) front.push(grid[i][j]);
         }
@@ -51,7 +51,7 @@ function generate(grid, options) {
         back = shuffle(back);
 
         //do shuffle
-        if(rows % 2 === 0) {
+        if(r % 2 === 0) {
             for(let i = 0;i < r/2;i++) for(let j = 0;j < c;j++) grid[i][j] = front.pop();
             for (let i = r - 1; i >= r / 2; i--) for(let j = 0;j < c;j++) grid[i][j] = back.pop();
         }

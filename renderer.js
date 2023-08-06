@@ -47,6 +47,15 @@ ipcRenderer.invoke("settings.get", "archived").then((res) => {
 
 loadClass("Test class of 2036");
 
+document.getElementById("test-button").addEventListener("click", () => {
+    generate(document.vars.grid, {shuffleFrontAndBackHalf: true});
+    loadIteration({
+        "rows": document.vars.grid.length,
+        "columns": document.vars.grid[0].length,
+        "seats": document.vars.grid
+    }, currentIter, false);
+});
+
 document.getElementById("open-new-class").addEventListener("click", () => {
     loadClass(document.getElementById("open-new-class").getAttribute("class-name"));
 });
@@ -212,11 +221,11 @@ async function loadClass(className) {
                 //     iterationList.children[i].classList.remove("active");
                 // }
                 if(currentIter !== -1) document.getElementById("iteration-" + currentIter).classList.remove("active");
-                loadIteration(res, ind);
+                loadIteration(res.iterations[ind], ind, true);
             });
         })
         // await loadIteration(className, res.iterations.length - 1);
-        loadIteration(res, res.iterations.length - 1);
+        loadIteration(res.iterations[res.iterations.length - 1], res.iterations.length - 1, true);
     }
     else {
         let element = document.createElement("li");
@@ -226,20 +235,39 @@ async function loadClass(className) {
         text.innerText = "No iterations yet. ";
         element.appendChild(text);
         iterationList.appendChild(element);
-        loadIteration(res, -1);
+        loadEmpty(res.rows, res.columns);
     }
 }
 
-function loadIteration(res, iter) {
+function loadEmpty(r, c) {
+    for(let i = 0;i < r;i++) {
+        document.vars.grid[i] = [];
+        for(let j = 0;j < c;j++) {
+            let cell = document.getElementById("cell-" + i + "-" + j);
+            let button = cell.children[1];
+            button.href = "#";
+            button.classList.add("bi");
+            button.classList.add("seat-button")
+            button.addEventListener("click", () => {
+                change(i, j);
+            });
+            cell.classList.add("cell-empty");
+            button.classList.add("bi-plus");
+            document.vars.grid[i][j] = new Seat(true, null);
+            button.setAttribute("x", "false")
+            cell.appendChild(button);
+        }
+    }
+}
+
+//iter >= 0, data is the iteration data
+function loadIteration(data, iter, reset) {
     let content = document.getElementById("iteration-content");
     while(content.children.length) content.children[0].remove();
 
     // console.log(res.iterations[0])
-    let r = res.rows, c = res.columns;
-    if(iter !== -1) {
-        r = res.iterations[iter].rows;
-        c = res.iterations[iter].columns;
-    }
+    let r = data.rows;
+    let c = data.columns;
     for(let i = 0;i < r;i++) {
         let row = document.createElement("div");
         row.classList.add("row");
@@ -281,35 +309,17 @@ function loadIteration(res, iter) {
 
 
     if(iter === -1) {
-        for(let i = 0;i < r;i++) {
-            document.vars.grid[i] = [];
-            for(let j = 0;j < c;j++) {
-                let cell = document.getElementById("cell-" + i + "-" + j);
-                let button = cell.children[1];
-                button.href = "#";
-                button.classList.add("bi");
-                button.classList.add("seat-button")
-                button.addEventListener("click", () => {
-                    change(i, j);
-                });
-                cell.classList.add("cell-empty");
-                button.classList.add("bi-plus");
-                document.vars.grid[i][j] = new Seat(true, null);
-                button.setAttribute("x", "false")
-                cell.appendChild(button);
-            }
-        }
+        loadEmpty(r, c);
         return;
     }
 
     //update grid stuff
-    document.vars.students = res.students;
     console.log("loading iterations")
     document.getElementById("iterations-dropdown-label").innerText = "Iteration " + (iter + 1);
     document.getElementById("iteration-" + iter).classList.add("active");
     currentIter = iter;
     for(let i = 0;i < r;i++) {
-        document.vars.grid[i] = [];
+        if(reset) document.vars.grid[i] = [];
         for(let j = 0;j < c;j++) {
             let cell = document.getElementById("cell-" + i + "-" + j);
             let button = cell.children[1];
@@ -319,27 +329,27 @@ function loadIteration(res, iter) {
             button.addEventListener("click", () => {
                 change(i, j);
             });
-            if(res.iterations[iter].seats[i][j].student) {
-                cell.children[0].textContent = document.vars.students[res.iterations[iter].seats[i][j].student].name;
+            if(data.seats[i][j].student) {
+                cell.children[0].textContent = document.vars.students[data.seats[i][j].student].name;
                 cell.classList.add("cell");
                 button.classList.add("bi-x");
-                document.vars.grid[i][j] = new Seat(false, res.iterations[iter].seats[i][j].student);
+                if(reset) document.vars.grid[i][j] = new Seat(false, data.seats[i][j].student);
                 document.getElementById("student-" + document.vars.grid[i][j].student).classList.add("student-used");
                 document.vars.students[document.vars.grid[i][j].student].r = i; document.vars.students[document.vars.grid[i][j].student].c = j;
 
                 button.setAttribute("x", "true")
             }
-            else if(!res.iterations[iter].seats[i][j].empty) {
+            else if(!data.seats[i][j].empty) {
                 cell.classList.add("cell-unoccupied");
                 button.classList.add("bi-x");
-                document.vars.grid[i][j] = new Seat(false, null);
+                if(reset) document.vars.grid[i][j] = new Seat(false, null);
 
                 button.setAttribute("x", "true")
             }
             else {
                 cell.classList.add("cell-empty");
                 button.classList.add("bi-plus");
-                document.vars.grid[i][j] = new Seat(true, null);
+                if(reset) document.vars.grid[i][j] = new Seat(true, null);
 
                 button.setAttribute("x", "false")
             }
