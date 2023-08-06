@@ -48,7 +48,10 @@ ipcRenderer.invoke("settings.get", "archived").then((res) => {
 loadClass("Test class of 2036");
 
 document.getElementById("test-button").addEventListener("click", () => {
-    generate(document.vars.grid, {shuffleFrontAndBackHalf: true});
+    generate(document.vars.grid, {
+        shuffleFrontAndBackHalf: false,
+        alphaFirst: true,
+    });
     loadIteration({
         "rows": document.vars.grid.length,
         "columns": document.vars.grid[0].length,
@@ -573,6 +576,104 @@ function cellDrop(e) {
 
 function clone(obj) {
     return JSON.parse(JSON.stringify(obj));
+}
+
+
+function generate(grid, options) {
+    let r = grid.length, c = grid[0].length, tot = r * c;
+    let minDist = 1e9, maxDist = 0, avgDist = 0;
+    if(options.shuffleFrontAndBackHalf) {
+        //5 rows: 0, 1, 4, 3
+
+        //init front/back
+        let front = [], back = []
+        if(r % 2 === 0) {
+            for (let i = 0; i < r / 2; i++) for (let j = 0; j < c; j++) back.push(grid[i][j]);
+            for (let i = r - 1; i >= r / 2; i--) for (let j = 0; j < c; j++) front.push(grid[i][j]);
+        }
+        else {
+            for (let i = 0; i < r / 2; i++) for (let j = 0; j < c; j++) back.push(grid[i][j]);
+            for (let i = r - 1; i > r / 2; i--) for (let j = 0; j < c; j++) front.push(grid[i][j]);
+            let mid = [];
+            for (let i = 0; i < c;i++) mid.push(grid[r/2][i]);
+            mid = shuffle(mid);
+            for(let i = 0;i < c;i++) {
+                if(i % 2 === 0) front.push(mid[i]);
+                else back.push(mid[i]);
+            }
+        }
+        front = shuffle(front);
+        back = shuffle(back);
+
+        //do shuffle
+        if(r % 2 === 0) {
+            for(let i = 0;i < r/2;i++) for(let j = 0;j < c;j++) grid[i][j] = front.pop();
+            for (let i = r - 1; i >= r / 2; i--) for(let j = 0;j < c;j++) grid[i][j] = back.pop();
+        }
+        else {
+            for (let i = 0; i < r / 2; i++) for (let j = 0; j < c; j++) grid[i][j] = front.pop();
+            for (let i = r - 1; i > r / 2; i--) for (let j = 0; j < c; j++) grid[i][j] = back.pop();
+            for(let i = 0;i < c;i++) {
+                if(i % 2 === 0) grid[i][j] = front.pop();
+                else grid[i][j] = back.pop();
+            }
+        }
+
+        //calculate stats
+        for(let i = 0;i < r;i++) {
+            for(let j = 0;j < c;j++) {
+                let dist = Math.abs(i - grid[i][j].student.r) + Math.abs(j - grid[i][j].student.c);
+                minDist = Math.min(minDist, dist);
+                maxDist = Math.max(maxDist, dist);
+                avgDist += dist;
+                [grid[i][j].student.r, grid[i][j].student.c] = [i, j];
+            }
+        }
+
+        avgDist /= tot;
+        console.log("Minimum (Manhattan) distance: " + minDist + " Maximum (Manhattan) distance: " + maxDist + " Average Distance: " + avgDist);
+        console.log(grid);
+    }
+    else if(options.alphaFirst) {
+        console.log("alpha first");
+        let prev = [];
+        for(let i = 0;i < r;i++) {
+            for(let j = 0;j < c;j++) {
+                prev.push(grid[i][j]);
+            }
+        }
+        prev.sort((a, b) => {
+            if(a.empty && b.empty) return 0;
+            if(a.empty) return 1;
+            if(b.empty) return -1;
+            if(!a.student && !b.student) return 0;
+            if(!a.student) return 1;
+            if(!b.student) return -1;
+            console.log(document.vars.students[b.student].name - document.vars.students[a.student].name);
+            return document.vars.students[b.student].name.localeCompare(document.vars.students[a.student].name);
+            //b - a so that alpha is based on front of classroom which is at the bottom
+        });
+        for (let i = 0;i < r;i++) {
+            for(let j = 0;j < c;j++) {
+                grid[i][j] = prev.pop();
+                console.log(grid[i][j])
+            }
+        }
+    }
+    else if(options.random) {
+        let prev = [];
+        for(let i = 0;i < r;i++) {
+            for(let j = 0;j < c;j++) {
+                prev.push(grid[i][j]);
+            }
+        }
+        shuffle(prev)
+        for (let i = 0;i < r;i++) {
+            for(let j = 0;j < c;j++) {
+                grid[i][j] = grid.pop();
+            }
+        }
+    }
 }
 
 
