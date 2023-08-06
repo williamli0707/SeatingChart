@@ -681,35 +681,41 @@ function generate(grid, options) {
 
 function populate(grid, options) {
     let r = grid.length, c = grid[0].length;
-    if(options.sort) {
-        let students = [];
-        Object.values(document.vars.students).forEach(student => {
-            students.push(student)
-            document.getElementById("student-" + student.id).classList.remove("student-used");
-        });
-        students.sort((a, b) => a.name.localeCompare(b.name));
-        console.log(students.length)
+    let students = [];
+    Object.values(document.vars.students).forEach(student => {
+        students.push(student)
+        document.getElementById("student-" + student.id).classList.remove("student-used");
+    });
+    if(options.sort) students.sort((a, b) => a.name.localeCompare(b.name));
+    else shuffle(students);
+    console.log(students.length)
 
+    for(let i = 0;i < r;i++) {
+        for(let j = 0;j < c;j++) {
+            if(grid[i][j].student) grid[i][j].student = null;
+        }
+    }
+
+    for(let j = c - 1;j >= 0;j--) {
         for(let i = 0;i < r;i++) {
-            for(let j = 0;j < c;j++) {
-                if(grid[i][j].student) grid[i][j].student = null;
-            }
-        }
-
-        for(let j = c - 1;j >= 0;j--) {
-            for(let i = 0;i < r;i++) {
-                if(!grid[i][j].empty && students.length) {
-                    grid[i][j] = new Seat(false, students.pop().id);
-                    // console.log("adding student " + grid[i][j].student + " to " + i + ", " + j);
-                    console.log("adding student")
-                    document.getElementById("student-" + grid[i][j].student).classList.add("student-used");
-                }
+            if(!grid[i][j].empty && students.length) {
+                grid[i][j] = new Seat(false, students.pop().id);
+                // console.log("adding student " + grid[i][j].student + " to " + i + ", " + j);
+                console.log("adding student")
+                document.getElementById("student-" + grid[i][j].student).classList.add("student-used");
             }
         }
     }
-    else {
+}
 
+function shuffle(array) {
+    let currentIndex = array.length,  randomIndex;
+    while (currentIndex !== 0) {
+        randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex--;
+        [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
     }
+    return array;
 }
 
 
