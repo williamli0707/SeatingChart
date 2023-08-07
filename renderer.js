@@ -15,7 +15,7 @@ let newClassModal = new bootstrap.Modal(document.getElementById('prompt-new-clas
 let newStudentsModal = new bootstrap.Modal(document.getElementById('add-students'), {});
 let shuffleModal = new bootstrap.Modal(document.getElementById('shuffle'), {});
 let toastNewClass = bootstrap.Toast.getOrCreateInstance(document.getElementById('toast-new-class'));
-let toastNewIter = bootstrap.Toast.getOrCreateInstance(document.getElementById('toast-new-iter'));
+let toastInfo = bootstrap.Toast.getOrCreateInstance(document.getElementById('toast-info'));
 let sidebar = new bootstrap.Collapse('#sidebar', {toggle: false});
 
 let currentClass, currentIter = -1;
@@ -34,6 +34,8 @@ ipcRenderer.invoke("settings.get", "classes").then((res) => {
         document.getElementById("dropdown-classes").insertBefore(element, document.getElementById("dropdown-classes").firstChild);
         a.addEventListener("click", () => {
             loadClass(key, false);
+            showToastInfo("Loaded class " + key.replaceAll("`", ".") + " successfully!");
+            sidebar.hide();
         });
     });
 });
@@ -49,6 +51,8 @@ ipcRenderer.invoke("settings.get", "archived").then((res) => {
         document.getElementById("dropdown-classes-archived").insertBefore(element, document.getElementById("dropdown-classes-archived").firstChild);
         a.addEventListener("click", () => {
             loadClass(key, true);
+            showToastInfo("Loaded class " + key.replaceAll("`", ".") + " successfully!");
+            sidebar.hide();
         });
     });
 
@@ -215,8 +219,7 @@ document.getElementById("save-as-new").addEventListener("click", async () => {
     let iterations = await ipcRenderer.invoke("settings.get", "classes." + currentClass + ".iterations");
     iterations.push(new Iteration(document.vars.grid.length, document.vars.grid[0].length, document.vars.grid));
     await ipcRenderer.invoke("settings.set", "classes." + currentClass + ".iterations", iterations);
-    document.getElementById("new-iter-message").children[0].innerText = "Saved to iteration " + iterations.length + "!";
-    toastNewIter.show();
+    showToastInfo("Saved to iteration " + iterations.length + "!");
     await loadClass(currentClass, false);
 });
 
@@ -224,8 +227,7 @@ document.getElementById("save-to-current").addEventListener("click", async () =>
     let iterations = await ipcRenderer.invoke("settings.get", "classes." + currentClass + ".iterations");
     iterations[currentIter] = new Iteration(document.vars.grid.length, document.vars.grid[0].length, document.vars.grid);
     await ipcRenderer.invoke("settings.set", "classes." + currentClass + ".iterations", iterations);
-    document.getElementById("new-iter-message").children[0].innerText = "Saved to iteration " + (currentIter + 1) + "!";
-    toastNewIter.show();
+    showToastInfo("Saved to iteration " + (currentIter + 1) + "!");
 });
 
 async function loadClass(className, archived) {
@@ -460,6 +462,10 @@ function change(r, c) {
     }
 }
 
+function showToastInfo(message) {
+    document.getElementById("toast-info-message").children[0].innerText = message;
+    toastInfo.show();
+}
 
 //0 for drag, 1 for swap
 function studentDragStart(e, studentID) {
