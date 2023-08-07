@@ -146,18 +146,27 @@ document.getElementById("confirm-change-size").addEventListener("click", () => {
     }
 
     let newGrid = [];
-    for(let i = 0;i < document.vars.grid.length;i++) {
+
+    for(let i = 0;i < Math.max(document.vars.grid.length, r);i++) {
         if(i < r) newGrid[i] = [];
-        for(let j = 0;j < document.vars.grid[i].length;j++) {
-            if(i < r && j < c) newGrid[i].push(document.vars.grid[i][j]);
-            else if(document.vars.grid[i][j].student) {
-                let id = document.vars.grid[i][j].student;
-                document.vars.students[id].r = null;
-                document.vars.students[id].c = null;
-                document.getElementById("student-" + id).classList.remove("student-used");
+        for(let j = 0;j < (document.vars.grid[i] ? Math.max(document.vars.grid[i].length, c) : c);j++) {
+            if(document.vars.grid[i] && document.vars.grid[i][j]) {
+                if (i < r && j < c) newGrid[i].push(document.vars.grid[i][j]);
+                else if (document.vars.grid[i][j].student) {
+                    let id = document.vars.grid[i][j].student;
+                    document.vars.students[id].r = null;
+                    document.vars.students[id].c = null;
+                    document.getElementById("student-" + id).classList.remove("student-used");
+                }
+            }
+            else if(i < r && j < c) {
+                console.log("attempting to set " + i + " " + j)
+                newGrid[i][j] = new Seat(true, null);
             }
         }
     }
+
+
     document.vars.grid = newGrid;
     console.log(newGrid)
     loadIteration({

@@ -28,8 +28,13 @@ a.bi {
 
 .student {
     white-space: nowrap;
-    overflow: scroll;
+    overflow-x: scroll;
+    box-sizing: content-box;
     max-width: 30vw;
+}
+
+.student::-webkit-scrollbar {
+    display: none;  /* Safari and Chrome */
 }
 
 .student-used {
@@ -223,15 +228,6 @@ a.bi {
     display: flex;
 }
 
-#welcome-message {
-
-}
-
-#main {
-    /*display: flex;*/
-}
-
 #content {
-    /*flex: 1 0 auto;*/
     height: 100%;
 }
