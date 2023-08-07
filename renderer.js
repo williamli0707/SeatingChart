@@ -12,12 +12,15 @@ document.vars.c = 0;
 let transferType = "";
 
 let newClassModal = new bootstrap.Modal(document.getElementById('prompt-new-class'), {});
+let copyClassModal = new bootstrap.Modal(document.getElementById('prompt-copy-class'), {});
 let newStudentsModal = new bootstrap.Modal(document.getElementById('add-students'), {});
 let shuffleModal = new bootstrap.Modal(document.getElementById('shuffle'), {});
 let changeSizeModal = new bootstrap.Modal(document.getElementById('change-size'), {});
 let toastNewClass = bootstrap.Toast.getOrCreateInstance(document.getElementById('toast-new-class'));
 let toastInfo = bootstrap.Toast.getOrCreateInstance(document.getElementById('toast-info'));
 let sidebar = new bootstrap.Collapse('#sidebar', {toggle: false});
+
+let testData;
 
 let currentClass, currentIter = -1;
 
@@ -212,6 +215,59 @@ document.getElementById("confirm-create-class").addEventListener("click", async 
     await loadClass(className, false);
 });
 
+document.getElementById("confirm-copy-class").addEventListener("click", async () => {
+    let className = document.getElementById("copy-class-name").value;
+    if(settings[className]) {
+        document.getElementById("prompt-copy-class-error").innerText = "Class name already exists";
+        return;
+    }
+    if(className === "") {
+        document.getElementById("prompt-copy-class-error").innerText = "Class name cannot be empty";
+        return;
+    }
+    if(className.includes("`")) {
+        document.getElementById("prompt-copy-class-error").innerText = "The character '`' is not allowed in class names";
+        return;
+    }
+
+    // LMAO
+    className = className.replaceAll(".", "`");
+
+    toastNewClass.show();
+    document.getElementById("open-new-class").setAttribute("class-name", className);
+
+    let gridClone = clone(document.vars.grid);
+
+    for(let i = 0;i < gridClone.length;i++) {
+        for(let j = 0;j < gridClone[i].length;j++) {
+            if(gridClone[i][j].student) {
+                gridClone[i][j].student = null;
+            }
+        }
+    }
+
+    await ipcRenderer.invoke("add-class", [className, gridClone.length, gridClone[0].length]);
+    await loadClass(className, false);
+    document.getElementById("save-as-new").click();
+    await loadClass(className, false).then(() => console.log("done loading class"));
+
+    testData = gridClone;
+
+    showToastInfo("Loading...");
+    setTimeout(async () => {
+        await loadIteration({
+            "rows": gridClone.length,
+            "columns": gridClone[0].length,
+            "seats": gridClone
+        }, 0, true);
+        await document.getElementById("save-to-current").click();
+        toastInfo.hide();
+    }, 1000);
+
+    copyClassModal.hide();
+});
+
+
 document.getElementById("change-size").addEventListener("shown.bs.modal", () => {
     document.getElementById("size-change-current-size").innerText = document.vars.grid.length + "x" + document.vars.grid[0].length;
 });
@@ -322,6 +378,7 @@ async function loadClass(className, archived) {
             text.innerText = "Iteration " + (ind + 1);
             element.appendChild(text);
             iterationList.appendChild(element);
+            console.log("added " + "iteration-" + ind + " to " + iterationList.id);
 
             element.addEventListener("click", () => {
                 // for(let i = 0;i < iterationList.children.length;i++) {
@@ -333,7 +390,7 @@ async function loadClass(className, archived) {
             });
         })
         // await loadIteration(className, res.iterations.length - 1);
-        loadIteration(res.iterations[res.iterations.length - 1], res.iterations.length - 1, true);
+        await loadIteration(res.iterations[res.iterations.length - 1], res.iterations.length - 1, true);
     }
     else {
         let element = document.createElement("li");
@@ -424,6 +481,8 @@ function loadIteration(data, iter, reset) {
     //update grid stuff
     console.log("loading iterations")
     document.getElementById("iterations-dropdown-label").innerText = "Iteration " + (iter + 1);
+    console.log("checking " + "iteration-" + iter)
+    console.log(document.getElementById("iteration-" + iter).classList)
     document.getElementById("iteration-" + iter).classList.add("active");
     currentIter = iter;
     for(let i = 0;i < r;i++) {
@@ -766,8 +825,6 @@ function shuffle(array) {
 /*
 - TODO copy layout
 - TODO clear worksapce
-- TODO expand and contract
-- TODO save layout
 - TODO delete students
 - TODO delete iterations
  */

@@ -51,7 +51,8 @@
                     <ul class="dropdown-menu dropdown-menu-end">
                         <li><a class="dropdown-item" href="#" data-bs-toggle="modal"
                                data-bs-target="#change-size" aria-expanded="false" aria-controls="change-size">Expand/Contract space</a></li>
-                        <li><a class="dropdown-item" href="#">Copy layout to new class</a></li>
+                        <li><a class="dropdown-item" href="#" data-bs-toggle="modal"
+                               data-bs-target="#prompt-copy-class" aria-expanded="false" aria-controls="prompt-copy-class">Copy layout to new class</a></li>
                     </ul>
                 </div>
             </div>
@@ -111,6 +112,27 @@
             </div>
         </div>
     </div>
+    <div class="modal fade" id="prompt-copy-class" tabindex="-1" aria-labelledby="prompt-copy-class" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="copy-class-label">Add a new class from an existing layout</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="prompt-copy-class-error"></p>
+                    <p>Class name: </p>
+                    <input type="text" id="copy-class-name" name="class-name" placeholder="Class name">
+                    <br><br>
+                    <p>Current iteration layout will be copied to a new class and saved to the first iteration with the given name. </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button id="confirm-copy-class" type="button" class="btn btn-primary">Create</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="modal fade" id="add-students" tabindex="-1" aria-labelledby="addStudents" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -147,6 +169,7 @@
                         <button id="place-alpha" class="btn btn-primary shuffle-button">Place in alphabetical order by name</button>
                         <button id="place-random" class="btn btn-primary shuffle-button">Place randomly</button>
                     </div>
+<!--                    TODO special seating-->
                     <p style="margin-bottom: 5px;margin-top: 15px;">Place students (for new iterations)</p>
                     <div class="hstack">
                         <button id="shuffle-frontback" class="btn btn-primary shuffle-button">Shuffle and swap front and back half</button>

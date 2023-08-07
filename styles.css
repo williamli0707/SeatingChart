@@ -122,6 +122,10 @@ a.bi {
     overflow: scroll;
 }
 
+#iteration-list::-webkit-scrollbar {
+    display: none;  /* Safari and Chrome */
+}
+
 #add-form {
     min-width: 270px;
 }
@@ -159,6 +163,10 @@ a.bi {
 }
 
 #prompt-new-class-error {
+    color: red;
+}
+
+#prompt-copy-class-error {
     color: red;
 }
 
