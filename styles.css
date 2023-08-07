@@ -111,6 +111,19 @@ a.bi {
     position: absolute;
 }
 
+.iteration-item {
+    display: flex;
+    flex-flow: row;
+}
+
+.iteration-text {
+    flex: 1 1 auto;
+}
+
+.iteration-delete-button {
+    flex: 0 0 16px;
+}
+
 .cell-hover {
 /*    TODO*/
 }

@@ -379,11 +379,40 @@ async function loadClass(className) {
             let ind = res.iterations.indexOf(i);
             let deleteButton = document.createElement("a");
 
+            element.classList.add("iteration-item");
+            text.classList.add("iteration-text");
+            deleteButton.classList.add("iteration-delete-button");
+
             text.classList.add("dropdown-item");
             text.id = "iteration-" + ind;
             text.innerText = "Iteration " + (ind + 1);
-            
+
+            deleteButton.href = "#";
+            deleteButton.classList.add("bi");
+            deleteButton.classList.add("bi-trash");
+            deleteButton.classList.add("dropdown-item")
+            deleteButton.setAttribute("state", "0");
+
+            deleteButton.addEventListener("click", async (e) => {
+                if(deleteButton.getAttribute("state") === "0") {
+                    deleteButton.setAttribute("state", "1");
+                    deleteButton.classList.remove("bi-trash");
+                    deleteButton.classList.add("bi-check");
+                    e.stopPropagation();
+                }
+                else {
+                    if(currentIter > ind) currentIter--;
+                    settings[currentClass].iterations.splice(ind, 1);
+                    await ipcRenderer.invoke("settings.set", "classes." + currentClass + ".iterations", settings[currentClass].iterations);
+                    await loadClass(currentClass);
+                    if(currentIter !== ind) {
+                        loadIteration(settings[currentClass].iterations[currentIter], currentIter, true);
+                    }
+                }
+            });
+
             element.appendChild(text);
+            element.appendChild(deleteButton);
             iterationList.appendChild(element);
             console.log("added " + "iteration-" + ind + " to " + iterationList.id);
 
@@ -392,7 +421,10 @@ async function loadClass(className) {
                 //     console.log("removing from " + iterationList.children[i].id)
                 //     iterationList.children[i].classList.remove("active");
                 // }
-                if(currentIter !== -1) document.getElementById("iteration-" + currentIter).classList.remove("active");
+                if(currentIter !== -1) {
+                    document.getElementById("iteration-" + currentIter).classList.remove("active");
+                    document.getElementById("iteration-" + currentIter).parentElement.children[1].classList.remove("active");
+                }
                 loadIteration(res.iterations[ind], ind, true);
             });
         })
@@ -491,6 +523,7 @@ function loadIteration(data, iter, reset) {
     console.log("checking " + "iteration-" + iter)
     console.log(document.getElementById("iteration-" + iter).classList)
     document.getElementById("iteration-" + iter).classList.add("active");
+    document.getElementById("iteration-" + iter).parentElement.children[1].classList.add("active");
     currentIter = iter;
     for(let i = 0;i < r;i++) {
         if(reset) document.vars.grid[i] = [];
@@ -835,6 +868,9 @@ function generate(grid, options) {
         for(let i = 0; i < r; i++) {
             for(let j = 0; j < c; j++) {
                 if(!grid[i][j].student) continue;
+                //just in case
+                document.vars.students[grid[i][j].student].r = i;
+                document.vars.students[grid[i][j].student].c = j;
                 if(front.length < totStudents / 2) front.push(grid[i][j].student);
                 else back.push(grid[i][j].student);
                 grid[i][j].student = null;
@@ -847,7 +883,16 @@ function generate(grid, options) {
                 if(grid[i][j].empty) continue;
                 if(front.length) grid[i][j].student = front.pop();
                 else if(back.length) grid[i][j].student = back.pop();
-                else continue;
+            }
+        }
+
+        let totDist = 0, totMDist = 0;
+        let minDist = 0, minMDist = 0;
+        let maxDist = 0, maxMDist = 0;
+        for(let i = 0;i < r;i++) {
+            for(let j = 0;j < c;j++) {
+                if(!grid[i][j].student) continue;
+                totDist += document.vars.students[grid[i][j].student].r;
                 document.vars.students[grid[i][j].student].r = i;
                 document.vars.students[grid[i][j].student].c = j;
             }
@@ -895,7 +940,6 @@ function shuffle(array) {
     return array;
 }
 
-
-/*
-- TODO delete iterations
- */
+function dist(r, c, r1, c1) {
+    return Math.sqrt((r - r1) * (r - r1) + (c - c1) * (c - c1));
+}
