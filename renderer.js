@@ -14,6 +14,7 @@ let transferType = "";
 let newClassModal = new bootstrap.Modal(document.getElementById('prompt-new-class'), {});
 let newStudentsModal = new bootstrap.Modal(document.getElementById('add-students'), {});
 let shuffleModal = new bootstrap.Modal(document.getElementById('shuffle'), {});
+let changeSizeModal = new bootstrap.Modal(document.getElementById('change-size'), {});
 let toastNewClass = bootstrap.Toast.getOrCreateInstance(document.getElementById('toast-new-class'));
 let toastInfo = bootstrap.Toast.getOrCreateInstance(document.getElementById('toast-info'));
 let sidebar = new bootstrap.Collapse('#sidebar', {toggle: false});
@@ -21,9 +22,11 @@ let sidebar = new bootstrap.Collapse('#sidebar', {toggle: false});
 let currentClass, currentIter = -1;
 
 let settings, archived;
-ipcRenderer.invoke("settings.get", "classes").then((res) => {
+ipcRenderer.invoke("settings.get", "classes").then(async (res) => {
     settings = res;
+    let defaultClass = "";
     Object.keys(settings).map(function(key) {
+        defaultClass = key;
         console.log(key);
         let element = document.createElement("li");
         let a = document.createElement("a");
@@ -38,6 +41,7 @@ ipcRenderer.invoke("settings.get", "classes").then((res) => {
             sidebar.hide();
         });
     });
+    if(defaultClass !== "") loadClass(defaultClass, false);
 });
 ipcRenderer.invoke("settings.get", "archived").then((res) => {
     archived = res;
@@ -58,23 +62,8 @@ ipcRenderer.invoke("settings.get", "archived").then((res) => {
 
 });
 
-loadClass("Test class of 2036", false);
-
 document.getElementById("test-button").addEventListener("click", () => {
-    // generate(document.vars.grid, {
-    //     shuffleFrontAndBackHalf: false,
-    //     alphaFirst: true,
-    // });
-    // generate(document.vars.grid, {
-    //     populate: true,
-    //     sort: true
-    // })
-    // loadIteration({
-    //     "rows": document.vars.grid.length,
-    //     "columns": document.vars.grid[0].length,
-    //     "seats": document.vars.grid
-    // }, currentIter, false);
-    sidebar.toggle();
+
 });
 
 document.getElementById("place-alpha").addEventListener("click", () => {
@@ -148,6 +137,38 @@ document.getElementById("confirm-add-students").addEventListener("click", () => 
     newStudentsModal.hide();
 });
 
+document.getElementById("confirm-change-size").addEventListener("click", () => {
+    let r = document.getElementById("new-class-size-r").value;
+    let c = document.getElementById("new-class-size-c").value;
+    if(r <= 0 || c <= 0) {
+        document.getElementById("prompt-new-class-error").innerText = "Invalid class size";
+        return;
+    }
+
+    let newGrid = [];
+    for(let i = 0;i < document.vars.grid.length;i++) {
+        if(i < r) newGrid[i] = [];
+        for(let j = 0;j < document.vars.grid[i].length;j++) {
+            if(i < r && j < c) newGrid[i].push(document.vars.grid[i][j]);
+            else if(document.vars.grid[i][j].student) {
+                let id = document.vars.grid[i][j].student;
+                document.vars.students[id].r = null;
+                document.vars.students[id].c = null;
+                document.getElementById("student-" + id).classList.remove("student-used");
+            }
+        }
+    }
+    document.vars.grid = newGrid;
+    console.log(newGrid)
+    loadIteration({
+        "rows": document.vars.grid.length,
+        "columns": document.vars.grid[0].length,
+        "seats": document.vars.grid
+    }, currentIter, false);
+
+    changeSizeModal.hide();
+});
+
 document.getElementById("confirm-create-class").addEventListener("click", async () => {
     let className = document.getElementById("class-name").value;
     let r = document.getElementById("class-size-r").value;
@@ -180,6 +201,14 @@ document.getElementById("confirm-create-class").addEventListener("click", async 
     newClassModal.hide();
 
     await loadClass(className, false);
+});
+
+document.getElementById("change-size").addEventListener("shown.bs.modal", () => {
+    document.getElementById("size-change-current-size").innerText = document.vars.grid.length + "x" + document.vars.grid[0].length;
+});
+
+document.getElementById("change-size").addEventListener("hidden.bs.modal", () => {
+
 });
 
 document.getElementById("prompt-new-class").addEventListener("hidden.bs.modal", () => {
@@ -231,6 +260,11 @@ document.getElementById("save-to-current").addEventListener("click", async () =>
 });
 
 async function loadClass(className, archived) {
+    document.getElementById("footer").classList.remove("d-none");
+    document.getElementById("extras-menu-button").classList.remove("disabled");
+    document.getElementById("shuffle-button").classList.remove("disabled");
+    document.getElementById("student-sidebar-button").classList.remove("disabled");
+
     let res;
     if(!archived) res = (await ipcRenderer.invoke("settings.get", "classes"))[className];
     else res = (await ipcRenderer.invoke("settings.get", "archived"))[className];
@@ -243,6 +277,7 @@ async function loadClass(className, archived) {
     let studentList = document.getElementById("student-list").children[0];
     while(studentList.children[0]) studentList.children[0].remove();
     Object.values(document.vars.students).map((student) => {
+        student.r = null; student.c = null;
         if (!student.deleted) {
             let element = document.createElement("li");
             element.draggable = true;

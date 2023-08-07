@@ -16,6 +16,10 @@ a.bi {
     width: auto;
 }
 
+.shuffle-button {
+    margin: 0 5px;
+}
+
 .menu-button-container {
     object-fit: scale-down;
     height: 30px;
@@ -197,5 +201,37 @@ a.bi {
     width: 40px;
     height: 40px;
     padding: 5px;
+}
 
+#extras-menu-button {
+    width: 40px;
+    height: 40px;
+    padding: 5px;
+}
+
+#extras-menu {
+    width: 30px;
+    height: 30px;
+}
+
+#welcome-div {
+    padding: 40px;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    display: flex;
+}
+
+#welcome-message {
+
+}
+
+#main {
+    /*display: flex;*/
+}
+
+#content {
+    /*flex: 1 0 auto;*/
+    height: 100%;
 }

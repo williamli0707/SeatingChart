@@ -40,16 +40,28 @@
                         </ul>
                     </li>
                 </ul>
-                <button id="shuffle-button" class="btn btn-outline-primary nav-button" data-bs-toggle="modal"
+                <button id="shuffle-button" class="btn btn-outline-primary nav-button disabled" data-bs-toggle="modal"
                         data-bs-target="#shuffle" aria-expanded="false" aria-controls="shuffle">Shuffle</button>
-                <button class="btn btn-outline-info nav-button" data-bs-toggle="collapse"
+                <button id="student-sidebar-button" class="btn btn-outline-info nav-button disabled" data-bs-toggle="collapse"
                         data-bs-target="#student-sidebar" aria-expanded="false" aria-controls="student-sidebar">Students</button>
+                <div class="dropdown">
+                    <button id="extras-menu-button" class="btn btn-outline-dark disabled" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i id="extras-menu" class="bi bi-three-dots-vertical"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="#" data-bs-toggle="modal"
+                               data-bs-target="#change-size" aria-expanded="false" aria-controls="change-size">Expand/Contract space</a></li>
+                        <li><a class="dropdown-item" href="#">Copy layout to new class</a></li>
+                    </ul>
+                </div>
             </div>
         </div>
     </nav>
     <div id="content" class="">
         <div id="iteration-content">
-
+            <div id="welcome-div">
+                <h3 id="welcome-message">No classes yet. To create a new class, open the sidebar and click the button under "Classes."</h3>
+            </div>
         </div>
         <div class="d-flex me-0" style="flex: 1 1 1px; justify-content: right;">
             <div class="vr me-0" style=""></div>
@@ -67,8 +79,9 @@
             </div>
         </div>
     </div>
-    <div id="footer">
-        <button id="test-button" class="btn btn-primary footer-item">test</button>
+    <div id="footer" class="d-none">
+        <button id="test-button" class="btn btn-primary footer-item" data-bs-toggle="modal"
+                data-bs-target="#change-size" aria-expanded="false" aria-controls="change-size">test</button>
         <p class="footer-item d-none"><i>Changes have been made</i></p>
         <button id="save-to-current" class="btn btn-primary footer-item">Save to current iteration</button>
         <button id="save-as-new" class="btn btn-primary footer-item">Save as new iteration</button>
@@ -129,19 +142,48 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <h3>Place students (for first iteration)</h3>
+                    <p style="margin-bottom: 5px;">Place students (for first iteration)</p>
                     <div class="hstack">
-                        <button id="place-alpha" class="btn btn-primary">Place in alphabetical order by name</button>
-                        <button id="place-random" class="btn btn-primary">Place randomly</button>
+                        <button id="place-alpha" class="btn btn-primary shuffle-button">Place in alphabetical order by name</button>
+                        <button id="place-random" class="btn btn-primary shuffle-button">Place randomly</button>
                     </div>
-                    <h3>Place students (for new iterations)</h3>
+                    <p style="margin-bottom: 5px;margin-top: 15px;">Place students (for new iterations)</p>
                     <div class="hstack">
-                        <button id="shuffle-frontback" class="btn btn-primary">Shuffle and swap front and back half</button>
-                        <button id="shuffle-" class="btn btn-primary">placeholder</button>
+                        <button id="shuffle-frontback" class="btn btn-primary shuffle-button">Shuffle and swap front and back half</button>
+<!--                        <button id="shuffle-" class="btn btn-primary shuffle-button">placeholder</button>-->
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="change-size" tabindex="-1" aria-labelledby="change-size" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="size-change-label">Expand or contract space</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="change-size-error"></p>
+                    <div class="hstack">
+                        <p style="margin-right: 5px;">Current size: </p>
+                        <p id="size-change-current-size"></p>
+                    </div>
+                    <br>
+                    <p>New size: </p>
+                    <input type="number" id="new-class-size-r" name="class-size" placeholder="Number of rows in class"> <br>
+                    <p>rows x</p>
+                    <input type="number" id="new-class-size-c" name="class-size" placeholder="Number of columns in class">
+                    <p>columns</p>
+                    <p style="color: red;font-size: 10px;">When changing the size of your space, the current iteration and all future iterations will change
+                        size, but previous iterations will stay the same size. </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button id="confirm-change-size" type="button" class="btn btn-success">Confirm</button>
                 </div>
             </div>
         </div>
