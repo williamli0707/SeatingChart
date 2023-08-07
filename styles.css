@@ -104,6 +104,10 @@ a.bi {
 /*    TODO*/
 }
 
+.nav-button {
+    margin: 5px;
+}
+
 #iteration-list {
     max-height: 30vh;
     overflow: scroll;

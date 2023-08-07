@@ -35,13 +35,14 @@
                         </a>
                         <ul id="iterations" class="dropdown-menu">
                             <div id="iteration-list">
-                                <li><a class="dropdown-item" href="#">Classes 1</a></li>
+                                <li><a class="dropdown-item" href="#">Iteration 1</a></li>
                             </div>
                         </ul>
                     </li>
                 </ul>
-                <button id="shuffle-button" class="btn btn-outline-primary nav-item-right">Shuffle</button>
-                <button class="btn btn-outline-info nav-item-right" data-bs-toggle="collapse"
+                <button id="shuffle-button" class="btn btn-outline-primary nav-button" data-bs-toggle="modal"
+                        data-bs-target="#shuffle" aria-expanded="false" aria-controls="shuffle">Shuffle</button>
+                <button class="btn btn-outline-info nav-button" data-bs-toggle="collapse"
                         data-bs-target="#student-sidebar" aria-expanded="false" aria-controls="student-sidebar">Students</button>
             </div>
         </div>
@@ -113,6 +114,31 @@
                     <p>Or import from CSV File</p>
                     <input type="file" id="student-file-import" name="student-file-import" accept=".csv">
 <!--                    TODO-->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="shuffle" tabindex="-1" aria-labelledby="shuffle" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="shuffle-label">Randomize or place students</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <h3>Place students (for first iteration)</h3>
+                    <div class="hstack">
+                        <button id="place-alpha" class="btn btn-primary">Place in alphabetical order by name</button>
+                        <button id="place-random" class="btn btn-primary">Place randomly</button>
+                    </div>
+                    <h3>Place students (for new iterations)</h3>
+                    <div class="hstack">
+                        <button id="shuffle-frontback" class="btn btn-primary">Shuffle and swap front and back half</button>
+                        <button id="shuffle-" class="btn btn-primary">placeholder</button>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
