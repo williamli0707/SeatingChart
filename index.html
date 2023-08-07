@@ -133,6 +133,25 @@
             </div>
         </div>
     </div>
+    <div class="modal fade" id="student-change-name" tabindex="-1" aria-labelledby="prompt-copy-class" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="student-change-name-label">Change a student's name</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="change-student-name-error"></p>
+                    <p>New name: </p>
+                    <input type="text" id="new-student-name" name="new-student-name" placeholder="New student name">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button id="confirm-change-name" type="button" class="btn btn-primary">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="modal fade" id="add-students" tabindex="-1" aria-labelledby="addStudents" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">

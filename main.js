@@ -15,7 +15,6 @@ let win;
 async function createWindow() {
 
     if(!settings.get("classes")) settings.set("classes", {});
-    if(!settings.get("archived")) settings.set("archived", {});
 
     // Create the browser window.
     win = new BrowserWindow({
@@ -69,6 +68,7 @@ ipcMain.handle("settings.get", (event, key) => {
 ipcMain.handle("add-class", (event, args) => {
     settings.set("classes." + args[0],
         {
+            archived: false,
             rows: args[1],
             columns: args[2],
             iterations: [],

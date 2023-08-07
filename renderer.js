@@ -14,6 +14,7 @@ let transferType = "";
 let newClassModal = new bootstrap.Modal(document.getElementById('prompt-new-class'), {});
 let copyClassModal = new bootstrap.Modal(document.getElementById('prompt-copy-class'), {});
 let newStudentsModal = new bootstrap.Modal(document.getElementById('add-students'), {});
+let changeStudentName = new bootstrap.Modal(document.getElementById('student-change-name'), {});
 let shuffleModal = new bootstrap.Modal(document.getElementById('shuffle'), {});
 let changeSizeModal = new bootstrap.Modal(document.getElementById('change-size'), {});
 let toastNewClass = bootstrap.Toast.getOrCreateInstance(document.getElementById('toast-new-class'));
@@ -24,45 +25,43 @@ let testData;
 
 let currentClass, currentIter = -1;
 
-let settings, archived;
+let settings;
 ipcRenderer.invoke("settings.get", "classes").then(async (res) => {
     settings = res;
     let defaultClass = "";
     Object.keys(settings).map(function(key) {
-        defaultClass = key;
-        console.log(key);
-        let element = document.createElement("li");
-        let a = document.createElement("a");
-        a.classList.add("nav-link");
-        a.href = "#";
-        a.innerText = key.replaceAll("`", ".");
-        element.appendChild(a);
-        document.getElementById("dropdown-classes").insertBefore(element, document.getElementById("dropdown-classes").firstChild);
-        a.addEventListener("click", () => {
-            loadClass(key, false);
-            showToastInfo("Loaded class " + key.replaceAll("`", ".") + " successfully!");
-            sidebar.hide();
-        });
+        if(!res[key].archived) {
+            defaultClass = key;
+            console.log(key);
+            let element = document.createElement("li");
+            let a = document.createElement("a");
+            a.classList.add("nav-link");
+            a.href = "#";
+            a.innerText = key.replaceAll("`", ".");
+            element.appendChild(a);
+            document.getElementById("dropdown-classes").insertBefore(element, document.getElementById("dropdown-classes").firstChild);
+            a.addEventListener("click", () => {
+                loadClass(key);
+                showToastInfo("Loaded class " + key.replaceAll("`", ".") + " successfully!");
+                sidebar.hide();
+            });
+        }
+        else {
+            let element = document.createElement("li");
+            let a = document.createElement("a");
+            a.classList.add("nav-link");
+            a.href = "#";
+            a.innerText = key.replaceAll("`", ".");
+            element.appendChild(a);
+            document.getElementById("dropdown-classes-archived").insertBefore(element, document.getElementById("dropdown-classes-archived").firstChild);
+            a.addEventListener("click", () => {
+                loadClass(key);
+                showToastInfo("Loaded class " + key.replaceAll("`", ".") + " successfully!");
+                sidebar.hide();
+            });
+        }
     });
-    if(defaultClass !== "") loadClass(defaultClass, false);
-});
-ipcRenderer.invoke("settings.get", "archived").then((res) => {
-    archived = res;
-    Object.keys(archived).map(function(key) {
-        let element = document.createElement("li");
-        let a = document.createElement("a");
-        a.classList.add("nav-link");
-        a.href = "#";
-        a.innerText = key.replaceAll("`", ".");
-        element.appendChild(a);
-        document.getElementById("dropdown-classes-archived").insertBefore(element, document.getElementById("dropdown-classes-archived").firstChild);
-        a.addEventListener("click", () => {
-            loadClass(key, true);
-            showToastInfo("Loaded class " + key.replaceAll("`", ".") + " successfully!");
-            sidebar.hide();
-        });
-    });
-
+    if(defaultClass !== "") loadClass(defaultClass);
 });
 
 document.getElementById("test-button").addEventListener("click", () => {
@@ -109,7 +108,7 @@ document.getElementById("shuffle-frontback").addEventListener("click", () => {
 });
 
 document.getElementById("open-new-class").addEventListener("click", () => {
-    loadClass(document.getElementById("open-new-class").getAttribute("class-name"), false);
+    loadClass(document.getElementById("open-new-class").getAttribute("class-name"));
 });
 
 document.getElementById("confirm-add-students").addEventListener("click", () => {
@@ -119,25 +118,30 @@ document.getElementById("confirm-add-students").addEventListener("click", () => 
         while(document.vars.students[id.toString()]) id++;
         document.vars.students[id.toString()] = new Student(null, null, student, null, id.toString());
 
-        let element = document.createElement("li");
-        element.draggable = true;
-        element.classList.add("list-group-item");
-        element.classList.add("student");
-        element.classList.add("nav-item");
-        element.id = "student-" + id;
-        element.innerText = student.toString();
-        document.getElementById("student-list").children[0].appendChild(element);
-
-        //nav-item student student-used list-group-item
-
-        element.addEventListener("dragstart", (e) => {
-            studentDragStart(e, id.toString());
-        });
+        addStudent(document.vars.students[id.toString()]);
 
         await ipcRenderer.invoke("settings.set", "classes." + currentClass + ".students." + id.toString(), document.vars.students[id.toString()]);
     });
 
     newStudentsModal.hide();
+});
+
+document.getElementById("confirm-change-name").addEventListener("click", async () => {
+    let name = document.getElementById("new-student-name").value;
+    if(name === "") {
+        document.getElementById("change-student-name-error").innerText = "Invalid name";
+        return;
+    }
+    let id = document.getElementById("student-change-name").getAttribute("student");
+    document.vars.students[id].name = name;
+    await ipcRenderer.invoke("settings.set", "classes." + currentClass + ".students." + id + ".name", name);
+    document.getElementById("student-" + id).children[0].innerText = name;
+    await loadIteration({
+        "rows": document.vars.grid.length,
+        "columns": document.vars.grid[0].length,
+        "seats": document.vars.grid,
+    }, currentIter, false);
+    changeStudentName.hide();
 });
 
 document.getElementById("confirm-change-size").addEventListener("click", () => {
@@ -212,7 +216,7 @@ document.getElementById("confirm-create-class").addEventListener("click", async 
     await ipcRenderer.invoke("add-class", [className, r, c]);
     newClassModal.hide();
 
-    await loadClass(className, false);
+    await loadClass(className);
 });
 
 document.getElementById("confirm-copy-class").addEventListener("click", async () => {
@@ -247,9 +251,9 @@ document.getElementById("confirm-copy-class").addEventListener("click", async ()
     }
 
     await ipcRenderer.invoke("add-class", [className, gridClone.length, gridClone[0].length]);
-    await loadClass(className, false);
+    await loadClass(className);
     document.getElementById("save-as-new").click();
-    await loadClass(className, false).then(() => console.log("done loading class"));
+    await loadClass(className).then(() => console.log("done loading class"));
 
     testData = gridClone;
 
@@ -273,6 +277,12 @@ document.getElementById("change-size").addEventListener("shown.bs.modal", () => 
 });
 
 document.getElementById("change-size").addEventListener("hidden.bs.modal", () => {
+    document.getElementById("change-size-error").innerText = "";
+    document.getElementById("new-class-size-r").value = "";
+    document.getElementById("new-class-size-c").value = "";
+});
+
+document.getElementById("shuffle").addEventListener("hidden.bs.modal", () => {
 
 });
 
@@ -281,6 +291,16 @@ document.getElementById("prompt-new-class").addEventListener("hidden.bs.modal", 
     document.getElementById("class-size-r").value = "";
     document.getElementById("class-size-c").value = "";
     document.getElementById("prompt-new-class-error").innerText = "";
+});
+
+document.getElementById("prompt-copy-class").addEventListener("hidden.bs.modal", () => {
+    document.getElementById("copy-class-name").value = "";
+    document.getElementById("prompt-copy-class-error").innerText = "";
+});
+
+document.getElementById("student-change-name").addEventListener("hidden.bs.modal", () => {
+    document.getElementById("new-student-name").value = "";
+    document.getElementById("change-student-name-error").innerText = "";
 });
 
 document.getElementById("add-students").addEventListener("hidden.bs.modal", () => {
@@ -314,7 +334,7 @@ document.getElementById("save-as-new").addEventListener("click", async () => {
     iterations.push(new Iteration(document.vars.grid.length, document.vars.grid[0].length, document.vars.grid));
     await ipcRenderer.invoke("settings.set", "classes." + currentClass + ".iterations", iterations);
     showToastInfo("Saved to iteration " + iterations.length + "!");
-    await loadClass(currentClass, false);
+    await loadClass(currentClass);
 });
 
 document.getElementById("save-to-current").addEventListener("click", async () => {
@@ -324,15 +344,13 @@ document.getElementById("save-to-current").addEventListener("click", async () =>
     showToastInfo("Saved to iteration " + (currentIter + 1) + "!");
 });
 
-async function loadClass(className, archived) {
+async function loadClass(className) {
     document.getElementById("footer").classList.remove("d-none");
     document.getElementById("extras-menu-button").classList.remove("disabled");
     document.getElementById("shuffle-button").classList.remove("disabled");
     document.getElementById("student-sidebar-button").classList.remove("disabled");
 
-    let res;
-    if(!archived) res = (await ipcRenderer.invoke("settings.get", "classes"))[className];
-    else res = (await ipcRenderer.invoke("settings.get", "archived"))[className];
+    let res = (await ipcRenderer.invoke("settings.get", "classes"))[className];
     document.vars.students = res.students;
 
     document.vars.grid = [];
@@ -344,22 +362,8 @@ async function loadClass(className, archived) {
     Object.values(document.vars.students).map((student) => {
         student.r = null; student.c = null;
         if (!student.deleted) {
-            let element = document.createElement("li");
-            element.draggable = true;
-            element.classList.add("list-group-item");
-            element.classList.add("student");
-            element.classList.add("nav-item");
-            element.id = "student-" + student.id;
-            element.innerText = student.name;
-            studentList.appendChild(element);
-
+            addStudent(student);
             document.vars.students[student.id] = student;
-
-            //nav-item student student-used list-group-item
-
-            element.addEventListener("dragstart", (e) => {
-                studentDragStart(e, student.id);
-            });
         }
     })
 
@@ -373,9 +377,12 @@ async function loadClass(className, archived) {
             let element = document.createElement("li");
             let text = document.createElement("a");
             let ind = res.iterations.indexOf(i);
+            let deleteButton = document.createElement("a");
+
             text.classList.add("dropdown-item");
             text.id = "iteration-" + ind;
             text.innerText = "Iteration " + (ind + 1);
+            
             element.appendChild(text);
             iterationList.appendChild(element);
             console.log("added " + "iteration-" + ind + " to " + iterationList.id);
@@ -501,8 +508,9 @@ function loadIteration(data, iter, reset) {
                 cell.classList.add("cell");
                 button.classList.add("bi-x");
                 if(reset) document.vars.grid[i][j] = new Seat(false, data.seats[i][j].student);
-                document.getElementById("student-" + document.vars.grid[i][j].student).classList.add("student-used");
                 document.vars.students[document.vars.grid[i][j].student].r = i; document.vars.students[document.vars.grid[i][j].student].c = j;
+                if(document.vars.students[data.seats[i][j].student].deleted) cell.children[0].textContent += " (deleted)";
+                else document.getElementById("student-" + document.vars.grid[i][j].student).classList.add("student-used");
 
                 button.setAttribute("x", "true")
             }
@@ -563,6 +571,72 @@ function change(r, c) {
     else {
         console.log("broken :(");
     }
+}
+
+function addStudent(student) {
+    let element = document.createElement("li");
+    let buttonDiv = document.createElement("div");
+    let deleteButton = document.createElement("a");
+    let editButton = document.createElement("a");
+    let p = document.createElement("p");
+    element.draggable = true;
+    element.classList.add("list-group-item");
+    element.classList.add("student");
+    element.classList.add("nav-item");
+    element.id = "student-" + student.id;
+
+    p.innerText = student.name;
+    p.classList.add("student-text");
+
+    deleteButton.href = "#";
+    deleteButton.classList.add("bi");
+    deleteButton.classList.add("bi-trash");
+    deleteButton.setAttribute("state", "0");
+
+    deleteButton.addEventListener("click", async () => {
+        if(deleteButton.getAttribute("state") === "0") {
+            deleteButton.classList.remove("bi-trash");
+            deleteButton.classList.add("bi-check");
+            deleteButton.setAttribute("state", "1");
+        }
+        else {
+            await ipcRenderer.invoke("settings.set", "classes." + currentClass + ".students." + student.id + ".deleted", true);
+            document.vars.students[student.id].deleted = true;
+            if(document.vars.students[student.id].r != null) {
+                await loadIteration({
+                    "rows": document.vars.grid.length,
+                    "columns": document.vars.grid[0].length,
+                    "seats": document.vars.grid
+                }, currentIter, false);
+            }
+            element.remove();
+        }
+    });
+
+    editButton.href = "#";
+    editButton.classList.add("bi");
+    editButton.classList.add("bi-pencil-square");
+    editButton.setAttribute("data-bs-toggle", "modal");
+    editButton.setAttribute("data-bs-target", "#student-change-name");
+    editButton.addEventListener("click", () => {
+        document.getElementById("student-change-name-label").innerText = "Change a student's name (" + student.name + ")";
+        document.getElementById("student-change-name").setAttribute("student", student.id);
+    });
+
+
+    buttonDiv.appendChild(editButton);
+    buttonDiv.appendChild(deleteButton);
+    buttonDiv.classList.add("student-buttons");
+
+    element.appendChild(p);
+    element.appendChild(buttonDiv);
+    document.getElementById("student-list").children[0].appendChild(element);
+
+    //nav-item student student-used list-group-item
+
+    element.addEventListener("dragstart", (e) => {
+        studentDragStart(e, student.id);
+    });
 }
 
 function showToastInfo(message) {
@@ -823,8 +897,5 @@ function shuffle(array) {
 
 
 /*
-- TODO copy layout
-- TODO clear worksapce
-- TODO delete students
 - TODO delete iterations
  */
