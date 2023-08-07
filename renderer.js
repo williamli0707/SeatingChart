@@ -16,6 +16,7 @@ let newStudentsModal = new bootstrap.Modal(document.getElementById('add-students
 let shuffleModal = new bootstrap.Modal(document.getElementById('shuffle'), {});
 let toastNewClass = bootstrap.Toast.getOrCreateInstance(document.getElementById('toast-new-class'));
 let toastNewIter = bootstrap.Toast.getOrCreateInstance(document.getElementById('toast-new-iter'));
+let sidebar = new bootstrap.Collapse('#sidebar', {toggle: false});
 
 let currentClass, currentIter = -1;
 
@@ -30,7 +31,10 @@ ipcRenderer.invoke("settings.get", "classes").then((res) => {
         a.href = "#";
         a.innerText = key.replaceAll("`", ".");
         element.appendChild(a);
-        document.getElementById("dropdown-classes").appendChild(element);
+        document.getElementById("dropdown-classes").insertBefore(element, document.getElementById("dropdown-classes").firstChild);
+        a.addEventListener("click", () => {
+            loadClass(key, false);
+        });
     });
 });
 ipcRenderer.invoke("settings.get", "archived").then((res) => {
@@ -42,26 +46,31 @@ ipcRenderer.invoke("settings.get", "archived").then((res) => {
         a.href = "#";
         a.innerText = key.replaceAll("`", ".");
         element.appendChild(a);
-        document.getElementById("dropdown-classes-archived").appendChild(element);
+        document.getElementById("dropdown-classes-archived").insertBefore(element, document.getElementById("dropdown-classes-archived").firstChild);
+        a.addEventListener("click", () => {
+            loadClass(key, true);
+        });
     });
+
 });
 
-loadClass("Test class of 2036");
+loadClass("Test class of 2036", false);
 
 document.getElementById("test-button").addEventListener("click", () => {
     // generate(document.vars.grid, {
     //     shuffleFrontAndBackHalf: false,
     //     alphaFirst: true,
     // });
-    generate(document.vars.grid, {
-        populate: true,
-        sort: true
-    })
-    loadIteration({
-        "rows": document.vars.grid.length,
-        "columns": document.vars.grid[0].length,
-        "seats": document.vars.grid
-    }, currentIter, false);
+    // generate(document.vars.grid, {
+    //     populate: true,
+    //     sort: true
+    // })
+    // loadIteration({
+    //     "rows": document.vars.grid.length,
+    //     "columns": document.vars.grid[0].length,
+    //     "seats": document.vars.grid
+    // }, currentIter, false);
+    sidebar.toggle();
 });
 
 document.getElementById("place-alpha").addEventListener("click", () => {
@@ -74,6 +83,7 @@ document.getElementById("place-alpha").addEventListener("click", () => {
         "columns": document.vars.grid[0].length,
         "seats": document.vars.grid
     }, currentIter, false);
+    shuffleModal.hide();
 });
 
 document.getElementById("place-random").addEventListener("click", () => {
@@ -86,6 +96,7 @@ document.getElementById("place-random").addEventListener("click", () => {
         "columns": document.vars.grid[0].length,
         "seats": document.vars.grid
     }, currentIter, false);
+    shuffleModal.hide();
 });
 
 document.getElementById("shuffle-frontback").addEventListener("click", () => {
@@ -98,10 +109,11 @@ document.getElementById("shuffle-frontback").addEventListener("click", () => {
         "columns": document.vars.grid[0].length,
         "seats": document.vars.grid
     }, currentIter, false);
+    shuffleModal.hide();
 });
 
 document.getElementById("open-new-class").addEventListener("click", () => {
-    loadClass(document.getElementById("open-new-class").getAttribute("class-name"));
+    loadClass(document.getElementById("open-new-class").getAttribute("class-name"), false);
 });
 
 document.getElementById("confirm-add-students").addEventListener("click", () => {
@@ -163,7 +175,7 @@ document.getElementById("confirm-create-class").addEventListener("click", async 
     await ipcRenderer.invoke("add-class", [className, r, c]);
     newClassModal.hide();
 
-    await loadClass(className);
+    await loadClass(className, false);
 });
 
 document.getElementById("prompt-new-class").addEventListener("hidden.bs.modal", () => {
@@ -193,6 +205,11 @@ document.getElementById("sidebar").addEventListener("hidden.bs.collapse", () => 
     document.getElementById("sidebar").style.zIndex = "0";
 });
 
+document.getElementById("classes-dropdown").addEventListener("shown.bs.collapse", (e) => {e.stopPropagation();});
+document.getElementById("classes-dropdown").addEventListener("hidden.bs.collapse", (e) => {e.stopPropagation();});
+document.getElementById("archived-classes-dropdown").addEventListener("shown.bs.collapse", (e) => {e.stopPropagation();});
+document.getElementById("archived-classes-dropdown").addEventListener("hidden.bs.collapse", (e) => {e.stopPropagation();});
+
 document.getElementById("save-as-new").addEventListener("click", async () => {
     //there should be a better way to do this
     let iterations = await ipcRenderer.invoke("settings.get", "classes." + currentClass + ".iterations");
@@ -200,7 +217,7 @@ document.getElementById("save-as-new").addEventListener("click", async () => {
     await ipcRenderer.invoke("settings.set", "classes." + currentClass + ".iterations", iterations);
     document.getElementById("new-iter-message").children[0].innerText = "Saved to iteration " + iterations.length + "!";
     toastNewIter.show();
-    await loadClass(currentClass);
+    await loadClass(currentClass, false);
 });
 
 document.getElementById("save-to-current").addEventListener("click", async () => {
@@ -211,9 +228,10 @@ document.getElementById("save-to-current").addEventListener("click", async () =>
     toastNewIter.show();
 });
 
-async function loadClass(className) {
-    let res = (await ipcRenderer.invoke("settings.get", "classes"))[className];
-    console.log(ipcRenderer.invoke("settings.get", "classes"))
+async function loadClass(className, archived) {
+    let res;
+    if(!archived) res = (await ipcRenderer.invoke("settings.get", "classes"))[className];
+    else res = (await ipcRenderer.invoke("settings.get", "archived"))[className];
     document.vars.students = res.students;
 
     document.vars.grid = [];
