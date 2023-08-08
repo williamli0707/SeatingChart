@@ -7,6 +7,9 @@ const path = require("path");
 const fs = require("fs");
 const Store = require('electron-store');
 const settings = new Store();
+require('update-electron-app')({
+    repo: 'williamli0707/SeatingChart'
+});
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -31,7 +34,7 @@ async function createWindow() {
 
     // Load app
     await win.loadFile(path.join(__dirname, "index.html"));
-    win.webContents.openDevTools();
+    // win.webContents.openDevTools();
 
     // settings.set("testing testing.testing testing", {"array": [0]})
 

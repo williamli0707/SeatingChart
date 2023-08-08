@@ -467,6 +467,9 @@ function loadEmpty(r, c) {
             cell.appendChild(button);
         }
     }
+
+    document.getElementById("save-as-new").click();
+    currentIter++;
 }
 
 function loadIteration(data, iter, reset) {
