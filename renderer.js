@@ -945,6 +945,10 @@ function generate(grid, options) {
                 }
             }
         }
+
+        if(students.length) {
+            showToastInfo("Wasn't able to fit " + students.length + " students due to not having enough seats. ");
+        }
     }
 }
 
