@@ -59,6 +59,7 @@ app.on('ready', createWindow);
 
 ipcMain.handle("settings.set", (event, key, value) => {
     settings.set(key, value);
+    return value;
 });
 
 ipcMain.handle("settings.get", (event, key) => {
@@ -75,7 +76,7 @@ ipcMain.handle("add-class", (event, args) => {
             rows: args[1],
             columns: args[2],
             iterations: [],
-            students: []
+            students: {}
         }
     );
 });

@@ -121,7 +121,7 @@ document.getElementById("confirm-add-students").addEventListener("click", () => 
 
         addStudent(document.vars.students[id.toString()]);
 
-        await ipcRenderer.invoke("settings.set", "classes." + currentClass + ".students." + id.toString(), document.vars.students[id.toString()]);
+        console.log(await ipcRenderer.invoke("settings.set", "classes." + currentClass + ".students." + id.toString(), document.vars.students[id.toString()]));
     });
 
     newStudentsModal.hide();
