@@ -64,8 +64,9 @@ ipcRenderer.invoke("settings.get", "classes").then(async (res) => {
     if(defaultClass !== "") loadClass(defaultClass);
 });
 
-document.getElementById("test-button").addEventListener("click", () => {
-
+document.getElementById("revert-changes").addEventListener("click", async () => {
+    await loadClass(currentClass);
+    await loadIteration(settings.classes[currentClass].iterations[currentIter]);
 });
 
 document.getElementById("place-alpha").addEventListener("click", () => {
@@ -350,7 +351,8 @@ async function loadClass(className) {
     document.getElementById("shuffle-button").classList.remove("disabled");
     document.getElementById("student-sidebar-button").classList.remove("disabled");
 
-    let res = (await ipcRenderer.invoke("settings.get", "classes"))[className];
+    settings = await ipcRenderer.invoke("settings.get", "classes");
+    let res = settings[className];
     document.vars.students = res.students;
 
     document.vars.grid = [];
@@ -862,7 +864,6 @@ function generate(grid, options) {
             if(!grid[i][j].student) totStudents--;
         }
     }
-    let minDist = 1e9, maxDist = 0, avgDist = 0;
     if(options.shuffleFrontBack) {
         let front = [], back = [];
         for(let i = 0; i < r; i++) {
@@ -886,17 +887,29 @@ function generate(grid, options) {
             }
         }
 
-        let totDist = 0, totMDist = 0;
+        let totDist = 0.00, totMDist = 0.00;
         let minDist = 0, minMDist = 0;
         let maxDist = 0, maxMDist = 0;
         for(let i = 0;i < r;i++) {
             for(let j = 0;j < c;j++) {
                 if(!grid[i][j].student) continue;
-                totDist += document.vars.students[grid[i][j].student].r;
+                let cDist = dist(i, j, document.vars.students[grid[i][j].student].r, document.vars.students[grid[i][j].student].c);
+                let cMDist = Math.abs(i - document.vars.students[grid[i][j].student].r) + Math.abs(j - document.vars.students[grid[i][j].student].c);
+                totDist += cDist;
+                totMDist += cMDist;
+                minDist = Math.min(minDist, cDist);
+                minMDist = Math.min(minMDist, cMDist);
+                maxDist = Math.max(maxDist, cDist);
+                maxMDist = Math.max(maxMDist, cMDist);
                 document.vars.students[grid[i][j].student].r = i;
                 document.vars.students[grid[i][j].student].c = j;
             }
         }
+        let avgDist = totDist / totStudents, avgMDist = totMDist / totStudents;
+        showToastInfo("Successfully shuffled: \n " +
+            "Average Distance: " + avgDist.toFixed(2) + "\n Average Manhattan Distance: " + avgMDist.toFixed(2) +
+            "\n Minimum Distance: " + minDist.toFixed(2) + "\n Minimum Manhattan Distance: " + minMDist.toFixed(2) +
+            "\n Maximum Distance: " + maxDist.toFixed(2) + "\n Maximum Manhattan Distance: " + maxMDist.toFixed(2));
     }
     else if(options.populate) {
         let r = grid.length, c = grid[0].length;
