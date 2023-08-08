@@ -441,7 +441,10 @@ async function loadClass(className) {
         text.innerText = "No iterations yet. ";
         element.appendChild(text);
         iterationList.appendChild(element);
-        loadEmpty(res.rows, res.columns);
+        await loadIteration({
+            "rows": res.rows,
+            "columns": res.columns
+        }, -1, true);
     }
 }
 
@@ -466,7 +469,6 @@ function loadEmpty(r, c) {
     }
 }
 
-//iter >= 0, data is the iteration data
 function loadIteration(data, iter, reset) {
     let content = document.getElementById("iteration-content");
     while(content.children.length) content.children[0].remove();
