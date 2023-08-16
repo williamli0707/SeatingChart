@@ -1,7 +1,7 @@
 {
   "name": "seatingchart",
   "productName": "Seating Chart Program",
-  "version": "1.0.2",
+  "version": "1.0.0",
   "description": "A seating chart generator utility app",
   "main": "main.js",
   "scripts": {
@@ -29,5 +29,10 @@
     "@electron-forge/plugin-auto-unpack-natives": "^6.2.1",
     "electron": "^25.0.0",
     "electron-builder": "22.14.13"
+  },
+  "build": {
+    "win": {
+      "publish": ["github"]
+    }
   }
 }
