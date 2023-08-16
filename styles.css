@@ -35,6 +35,11 @@ a.bi {
     flex-flow: row;
 }
 
+.class {
+    display: flex;
+    flex-flow: row;
+}
+
 .student::-webkit-scrollbar {
     display: none;  /* Safari and Chrome */
 }
@@ -138,9 +143,27 @@ a.bi {
     flex: 1 1 auto;
 }
 
+.class-text {
+    overflow-x: scroll;
+    flex: 1 1 auto;
+}
+
 .student-buttons {
     right: 5px;
     flex: 0 0 33px;
+}
+
+.class-buttons {
+    right: 5px;
+    display: table;
+    /*flex-flow: row;*/
+}
+
+div.class-buttons .bi {
+    padding-right: 2px;
+    display: table-cell;
+    text-align: center;
+    vertical-align: middle;
 }
 
 #iteration-list {

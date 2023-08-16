@@ -29,41 +29,111 @@ let currentClass, currentIter = -1;
 let settings;
 ipcRenderer.invoke("settings.get", "classes").then(async (res) => {
     settings = res;
-    let defaultClass = "";
-    Object.keys(settings).map(function(key) {
-        if(!res[key].archived) {
-            defaultClass = key;
-            console.log(key);
-            let element = document.createElement("li");
-            let a = document.createElement("a");
-            a.classList.add("nav-link");
-            a.href = "#";
-            a.innerText = key.replaceAll("`", ".");
-            element.appendChild(a);
-            document.getElementById("dropdown-classes").insertBefore(element, document.getElementById("dropdown-classes").firstChild);
-            a.addEventListener("click", () => {
-                loadClass(key);
-                showToastInfo("Loaded class " + key.replaceAll("`", ".") + " successfully!");
-                sidebar.hide();
-            });
-        }
-        else {
-            let element = document.createElement("li");
-            let a = document.createElement("a");
-            a.classList.add("nav-link");
-            a.href = "#";
-            a.innerText = key.replaceAll("`", ".");
-            element.appendChild(a);
-            document.getElementById("dropdown-classes-archived").insertBefore(element, document.getElementById("dropdown-classes-archived").firstChild);
-            a.addEventListener("click", () => {
-                loadClass(key);
-                showToastInfo("Loaded class " + key.replaceAll("`", ".") + " successfully!");
-                sidebar.hide();
-            });
-        }
-    });
+    let defaultClass = loadClasses(settings);
     if(defaultClass !== "") loadClass(defaultClass);
 });
+
+function loadClasses(settings) {
+    let defaultClass = "";
+    let dropdown = document.getElementById("dropdown-classes");
+    let dropdownArchived = document.getElementById("dropdown-classes-archived");
+    while(dropdown.children.length > 1) dropdown.children[0].remove();
+    while(dropdownArchived.children.length > 0) dropdownArchived.children[0].remove();
+    Object.keys(settings).map(function(key) {
+        console.log(settings[key].archived)
+        if(!settings[key].archived) {
+            defaultClass = key;
+            let element = addClassElement(key);
+            dropdown.insertBefore(element, dropdown.firstChild);
+        }
+        else {
+            let element = addClassElement(key);
+            dropdownArchived.insertBefore(element, dropdownArchived.firstChild);
+        }
+    });
+    return defaultClass;
+}
+
+function addClassElement(key) {
+    let element = document.createElement("li");
+    let a = document.createElement("a");
+    let buttonDiv = document.createElement("div");
+    let deleteButton = document.createElement("a");
+    let archiveButton = document.createElement("a");
+
+    a.classList.add("nav-link");
+    a.classList.add("class-text");
+    a.href = "#";
+    a.innerText = key.replaceAll("`", ".");
+    element.appendChild(a);
+    element.classList.add("class")
+
+    deleteButton.href = "#";
+    deleteButton.classList.add("bi");
+    deleteButton.classList.add("bi-trash");
+    deleteButton.setAttribute("state", "0");
+
+    deleteButton.addEventListener("click", async () => {
+        if(deleteButton.getAttribute("state") === "0") {
+            deleteButton.classList.remove("bi-trash");
+            deleteButton.classList.add("bi-check");
+            deleteButton.setAttribute("state", "1");
+        }
+        else {
+            let settings = await ipcRenderer.invoke("settings.get", "classes");
+            delete settings[key];
+            await ipcRenderer.invoke("settings.set", "classes", settings);
+            let defaultClass = loadClasses(settings);
+            if(key === currentClass) loadClass(defaultClass);
+
+            showToastInfo("Deleted class " + key.replaceAll("`", ".") + " successfully!");
+        }
+    });
+
+    archiveButton.href = "#";
+    archiveButton.classList.add("bi");
+    archiveButton.classList.add("bi-archive");
+    archiveButton.setAttribute("state", "0");
+
+    archiveButton.addEventListener("click", async () => {
+        if (archiveButton.getAttribute("state") === "0") {
+            archiveButton.classList.remove("bi-archive");
+            archiveButton.classList.add("bi-check");
+            archiveButton.setAttribute("state", "1");
+        }
+        else {
+            let settings = await ipcRenderer.invoke("settings.get", "classes");
+            if(!settings[key].archived) {
+                settings[key].archived = true;
+                await ipcRenderer.invoke("settings.set", "classes", settings);
+                loadClasses(settings);
+
+                showToastInfo("Archived class " + key.replaceAll("`", ".") + " successfully!");
+            }
+            else {
+                settings[key].archived = false;
+                await ipcRenderer.invoke("settings.set", "classes", settings);
+                loadClasses(settings);
+
+                showToastInfo("Unarchived class " + key.replaceAll("`", ".") + " successfully!");
+            }
+        }
+    });
+
+    buttonDiv.appendChild(archiveButton);
+    buttonDiv.appendChild(deleteButton);
+    buttonDiv.classList.add("class-buttons");
+
+    element.appendChild(buttonDiv);
+
+    a.addEventListener("click", () => {
+        loadClass(key);
+        showToastInfo("Loaded class " + key.replaceAll("`", ".") + " successfully!");
+        sidebar.hide();
+    });
+
+    return element;
+}
 
 document.getElementById("revert-changes").addEventListener("click", async () => {
     await loadClass(currentClass);
