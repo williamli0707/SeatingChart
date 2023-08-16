@@ -1062,4 +1062,3 @@ function shuffle(array) {
 function dist(r, c, r1, c1) {
     return Math.sqrt((r - r1) * (r - r1) + (c - c1) * (c - c1));
 }
-//
