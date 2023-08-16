@@ -1,7 +1,7 @@
 {
   "name": "seatingchart",
   "productName": "Seating Chart Program",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A seating chart generator utility app",
   "main": "main.js",
   "scripts": {
