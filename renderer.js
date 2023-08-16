@@ -1,6 +1,7 @@
 const { ipcRenderer } = require('electron');
-
-let { Seat, Student, Iteration } = require("./classes.js");
+const fs = require("fs");
+const { parse } = require("csv");
+const { Seat, Student, Iteration } = require("./classes.js");
 
 document.vars = {};
 
@@ -124,7 +125,33 @@ document.getElementById("confirm-add-students").addEventListener("click", () => 
         console.log(await ipcRenderer.invoke("settings.set", "classes." + currentClass + ".students." + id.toString(), document.vars.students[id.toString()]));
     });
 
+    showToastInfo("Imported " + students.length + " students successfully!");
     newStudentsModal.hide();
+});
+
+document.getElementById("student-file-import").addEventListener("change", (e) => {
+    let path = document.getElementById("student-file-import").files.item(0).path;
+    console.log(path);
+    let num = 0;
+    fs.createReadStream(path)
+        .pipe(parse({ delimiter: ",", from_line: 1 }))
+        .on("data", async function (row) {
+            console.log(row);
+            let id = Date.now();
+            while(document.vars.students[id.toString()]) id++;
+            document.vars.students[id.toString()] = new Student(null, null, row[0], null, id.toString());
+            addStudent(document.vars.students[id.toString()]);
+            console.log(await ipcRenderer.invoke("settings.set", "classes." + currentClass + ".students." + id.toString(), document.vars.students[id.toString()]));
+            num++;
+        })
+        .on("end", function () {
+            console.log("finished");
+            showToastInfo("Imported " + num + " students successfully!");
+            newStudentsModal.hide();
+        })
+        .on("error", function (error) {
+            console.log(error.message);
+    });
 });
 
 document.getElementById("confirm-change-name").addEventListener("click", async () => {
