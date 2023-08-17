@@ -199,7 +199,7 @@ document.getElementById("confirm-add-students").addEventListener("click", () => 
     newStudentsModal.hide();
 });
 
-document.getElementById("student-file-import").addEventListener("change", (e) => {
+document.getElementById("student-file-import").addEventListener("change", () => {
     let path = document.getElementById("student-file-import").files.item(0).path;
     console.log(path);
     let num = 0;
@@ -1020,7 +1020,7 @@ function generate(grid, options) {
             students.push(student)
             document.getElementById("student-" + student.id).classList.remove("student-used");
         });
-        if(options.sort) students.sort((a, b) => a.name.localeCompare(b.name));
+        if(options.sort) students.sort((a, b) => b.name.localeCompare(a.name));
         else shuffle(students);
         console.log(students.length)
 
@@ -1030,8 +1030,8 @@ function generate(grid, options) {
             }
         }
 
-        for(let j = c - 1;j >= 0;j--) {
-            for(let i = 0;i < r;i++) {
+        for(let j = 0;j < c;j++) {
+            for(let i = r - 1;i >= 0;i--) {
                 if(!grid[i][j].empty && students.length) {
                     grid[i][j] = new Seat(false, students.pop().id);
                     document.vars.students[grid[i][j].student].r = i;
