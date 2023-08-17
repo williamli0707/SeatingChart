@@ -32,7 +32,15 @@
   },
   "build": {
     "win": {
-      "publish": ["github"]
+      "target": "nsis",
+      "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
+      "icon": "build/icon.ico"
+    },
+    "publish": {
+      "provider": "github",
+      "repo": "SeatingChart",
+      "owner": "williamli0707",
+      "releaseType": "release"
     }
   }
 }
