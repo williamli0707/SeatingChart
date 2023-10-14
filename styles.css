@@ -315,9 +315,9 @@ div.class-buttons .bi {
                 inset -10px 0 20px #12E293,  /* inner right cyan short */
                 inset 10px 0 75px #1ee8ff,  /* inner left magenta broad */
                 inset -10px 0 75px #12E293, /* inner right cyan broad */
-                0 0 30px 15px #fff,  /* inner white */
-                0 0 50px 30px #1ee8ff, /* middle magenta */
-                0 0 70px 45px #12E293; /* outer cyan */
+                0 0 30px 4px #fff,  /* inner white */
+                0 0 50px 8px #1ee8ff, /* middle magenta */
+                0 0 70px 11px #12E293; /* outer cyan */
     }
 }
 

@@ -713,7 +713,6 @@ function loadIteration(data, iter, reset) {
                 change(i, j);
             });
             if(data.seats[i][j].student) {
-                console.log("setting " + i + " " + j)
                 cell.children[0].textContent = document.vars.students[data.seats[i][j].student].name;
                 cell.classList.add("cell");
                 button.classList.add("bi-x");
@@ -1338,11 +1337,11 @@ function generate(grid, options) {
                     document.vars.students[grid[i][j].student].r = i;
                     document.vars.students[grid[i][j].student].c = j;
                     if (i < Math.floor(r / 2)) back.push(grid[i][j].student);
-                    else if (i == Math.floor(r / 2) && j < Math.floor(c / 2)) front.push(grid[i][j].student)
+                    else if (i === Math.floor(r / 2) && j < Math.floor(c / 2)) back.push(grid[i][j].student)
                 }
             }
 
-            shuffle(front);
+            shuffle(back);
 
             for(let j = 0;j < Math.floor(c / 2);j++) {
                 if(grid[Math.floor(r / 2)][j].empty) continue;
