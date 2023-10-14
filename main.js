@@ -87,6 +87,6 @@ ipcMain.handle("add-class", (event, args) => {
 
 //TODO:
 /*
-- Scroll button - front and back
+- Scroll button - front and back (not needed for now i think)
 - fill all empty seats in the front
  */
