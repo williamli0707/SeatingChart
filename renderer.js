@@ -801,7 +801,7 @@ function addStudent(student) {
     element.draggable = true;
     element.classList.add("list-group-item");
     element.classList.add("student");
-    element.classList.add("nav-item");
+    // element.classList.add("nav-item");
     element.id = "student-" + student.id;
 
     p.innerText = student.name;

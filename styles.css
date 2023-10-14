@@ -28,12 +28,12 @@ a.bi {
 
 .student {
     white-space: nowrap;
-    overflow-x: scroll;
     box-sizing: content-box;
-    max-width: 90%;
     display: flex;
+    max-width: calc(35vw - 40px) !important;
     flex-flow: row;
     cursor: pointer;
+    overflow: hidden;
 }
 
 .class {
@@ -141,6 +141,7 @@ a.bi {
 .student-text {
     margin-bottom: 0;
     overflow-x: scroll;
+    max-width: 100%;
     flex: 1 1 auto;
 }
 
@@ -210,6 +211,7 @@ div.class-buttons .bi {
     display: flex;
     align-items: end;
     justify-content: right;
+    box-shadow: gray 0 0px 2px;
 }
 
 #prompt-new-class-error {
@@ -249,13 +251,23 @@ div.class-buttons .bi {
     top: 0;
     right: 0;
     background-color: gray;
-    flex: 1 0 auto;
-    margin-left: 5px;
+    /*flex: 1 0 auto;*/
+    /*margin-left: 5px;*/
     padding: 0;
+    max-width: 35vw;
+    max-height: 100%;
 }
 
 #student-sidebar-content {
     /*overflow: scroll;*/
+    margin: 0;
+    width: 35vw;
+    height: 100%;
+    padding: 0;
+    display: flex;
+    flex-flow: column;
+    max-height: 100%;
+    overflow: hidden;
 }
 
 #student-list {
@@ -267,6 +279,9 @@ div.class-buttons .bi {
     overflow-x: hidden;
     /*-webkit-mask: var(--mask);*/
     /*mask: var(--mask);*/
+    padding: 0;
+    max-width: calc(35vw - 40px);
+    max-height: calc(100% - 80px);
 }
 
 #open-sidebar {
