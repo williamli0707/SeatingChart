@@ -211,7 +211,7 @@ div.class-buttons .bi {
     display: flex;
     align-items: end;
     justify-content: right;
-    box-shadow: gray 0 0px 2px;
+    box-shadow: gray 0 0 2px;
 }
 
 #prompt-new-class-error {
