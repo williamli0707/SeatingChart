@@ -53,6 +53,7 @@ async function loadClasses(settings) {
         }
     });
     let lastSeen = await ipcRenderer.invoke("settings.get", "lastSeen");
+    if(!(await ipcRenderer.invoke("settings.get", "classes." + lastSeen.replaceAll(".", "`")))) return defaultClass;
     return lastSeen === "." ? defaultClass : lastSeen;
 }
 
@@ -85,8 +86,9 @@ function addClassElement(key) {
             let settings = await ipcRenderer.invoke("settings.get", "classes");
             delete settings[key];
             await ipcRenderer.invoke("settings.set", "classes", settings);
-            let defaultClass = loadClasses(settings);
-            if(key === currentClass) loadClass(defaultClass);
+            if(key === currentClass) await loadClass(await loadClasses(settings));
+
+            element.remove();
 
             showToastInfo("Deleted class " + key.replaceAll("`", ".") + " successfully!");
         }
@@ -108,14 +110,14 @@ function addClassElement(key) {
             if(!settings[key].archived) {
                 settings[key].archived = true;
                 await ipcRenderer.invoke("settings.set", "classes", settings);
-                loadClasses(settings);
+                await loadClasses(settings);
 
                 showToastInfo("Archived class " + key.replaceAll("`", ".") + " successfully!");
             }
             else {
                 settings[key].archived = false;
                 await ipcRenderer.invoke("settings.set", "classes", settings);
-                loadClasses(settings);
+                await loadClasses(settings);
 
                 showToastInfo("Unarchived class " + key.replaceAll("`", ".") + " successfully!");
             }
@@ -240,8 +242,11 @@ document.getElementById("shuffle-back-front").addEventListener("click", () => {
     shuffleModal.hide();
 });
 
-document.getElementById("open-new-class").addEventListener("click", () => {
-    loadClass(document.getElementById("open-new-class").getAttribute("class-name"));
+document.getElementById("open-new-class").addEventListener("click", async () => {
+    let key = document.getElementById("open-new-class").getAttribute("class-name");
+    await loadClass(key);
+    showToastInfo("Loaded class " + key.replaceAll("`", ".") + " successfully!");
+    sidebar.hide();
 });
 
 document.getElementById("confirm-add-students").addEventListener("click", () => {
@@ -349,7 +354,7 @@ document.getElementById("confirm-create-class").addEventListener("click", async 
     let r = document.getElementById("class-size-r").value;
     let c = document.getElementById("class-size-c").value;
 
-    if(settings[className]) {
+    if(await ipcRenderer.invoke("settings.get", "classes." + className.replaceAll(".", "`"))) {
         document.getElementById("prompt-new-class-error").innerText = "Class name already exists";
         return;
     }
@@ -366,6 +371,8 @@ document.getElementById("confirm-create-class").addEventListener("click", async 
         return;
     }
 
+    document.getElementById("dropdown-classes").insertBefore(addClassElement(className), document.getElementById("dropdown-classes").firstChild);
+
     // LMAO
     className = className.replaceAll(".", "`");
 
@@ -375,7 +382,7 @@ document.getElementById("confirm-create-class").addEventListener("click", async 
     await ipcRenderer.invoke("add-class", [className, r, c]);
     newClassModal.hide();
 
-    await loadClass(className);
+    // await loadClass(className);
 });
 
 document.getElementById("confirm-copy-class").addEventListener("click", async () => {
