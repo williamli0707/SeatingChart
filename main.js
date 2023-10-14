@@ -91,4 +91,5 @@ ipcMain.handle("add-class", (event, args) => {
 - shuffle one side specifically
 - fill all empty seats in the front
 - changes made warning
+- add class to sidebar
  */

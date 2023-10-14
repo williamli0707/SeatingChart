@@ -1227,8 +1227,14 @@ function generate(grid, options) {
                     //just in case
                     document.vars.students[grid[i][j].student].r = i;
                     document.vars.students[grid[i][j].student].c = j;
-                    if (i > Math.floor(r / 2)) front.push(grid[i][j].student);
-                    else if (i == Math.floor(r / 2) && j >= Math.floor(c / 2)) front.push(grid[i][j].student)
+                    if (i > Math.floor(r / 2)) {
+                        front.push(grid[i][j].student);
+                        grid[i][j].student = -1;
+                    }
+                    else if (i == Math.floor(r / 2) && j >= Math.floor(c / 2)) {
+                        front.push(grid[i][j].student)
+                        grid[i][j].student = -1;
+                    }
                 }
             }
 
@@ -1338,6 +1344,7 @@ function generate(grid, options) {
                     document.vars.students[grid[i][j].student].c = j;
                     if (i < Math.floor(r / 2)) back.push(grid[i][j].student);
                     else if (i === Math.floor(r / 2) && j < Math.floor(c / 2)) back.push(grid[i][j].student)
+                    grid[i][j].student = -1;
                 }
             }
 
@@ -1356,7 +1363,7 @@ function generate(grid, options) {
             }
         }
 
-        showDistanceMessageHalf(grid, totStudents, 0);
+        showDistanceMessageHalf(grid, totStudents, 1);
     }
     else if(options.shuffleBackPush){
 
@@ -1441,10 +1448,11 @@ function showDistanceMessageHalf(grid, totStudents, half) {
         maxMDist = Math.max(maxMDist, cMDist);
         document.vars.students[grid[i][j].student].r = i;
         document.vars.students[grid[i][j].student].c = j;
+        console.log("calculating dist for cell " + i + " " + j + " dist: " + minDist)
     }
 
     if(r % 2 === 0) {
-        let istart = -1, iend = -1
+        let istart = -1, iend = -1;
         if(half === 0) {
             istart = Math.floor(r / 2);
             iend = r;
@@ -1465,11 +1473,13 @@ function showDistanceMessageHalf(grid, totStudents, half) {
         for (let i = 0; i < r; i++) {
             for (let j = 0; j < c; j++) {
                 if (!grid[i][j].student) continue;
-                //just in case
-                document.vars.students[grid[i][j].student].r = i;
-                document.vars.students[grid[i][j].student].c = j;
-                if (i < Math.floor(r / 2)) if(half === 0) getDist(i, j);
-                else if (i > Math.floor(r / 2)) if(half === 1) getDist(i, j);
+                console.log("checking " + i + " " + j + " half: " + half + " r/2 floor: " + Math.floor(r / 2))
+                if (i > Math.floor(r / 2)) {
+                    if(half === 0) getDist(i, j);
+                }
+                else if (i < Math.floor(r / 2)) {
+                    if (half === 1) getDist(i, j);
+                }
                 else {
                     if(j < Math.floor(c / 2)) if(half === 1) getDist(i, j);
                     else {if(half === 0) getDist(i, j);}
