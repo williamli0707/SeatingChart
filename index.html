@@ -190,8 +190,17 @@
 <!--                    TODO special seating-->
                     <p style="margin-bottom: 5px;margin-top: 15px;">Place students (for new iterations)</p>
                     <div class="hstack">
-                        <button id="shuffle-frontback" class="btn btn-primary shuffle-button">Shuffle and swap front and back half</button>
+<!--                        <button id="shuffle-frontback" class="btn btn-primary shuffle-button">Shuffle and swap front and back half</button>-->
 <!--                        <button id="shuffle-" class="btn btn-primary shuffle-button">placeholder</button>-->
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-primary dropdown-toggle shuffle-button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Shuffle and swap front and back half
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a id="shuffle-frontback" class="dropdown-item" href="#">Try to fill same seats</a></li>
+                                <li><a id="shuffle-frontback-front" class="dropdown-item" href="#">Push to front of each half</a></li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
