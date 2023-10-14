@@ -141,7 +141,7 @@ function addClassElement(key) {
 
 document.getElementById("revert-changes").addEventListener("click", async () => {
     await loadClass(currentClass);
-    await loadIteration(settings.classes[currentClass].iterations[currentIter]);
+    await loadIteration((await ipcRenderer.invoke("settings.get", "classes." + currentClass)).iterations[currentIter], currentIter);
 });
 
 document.getElementById("place-alpha").addEventListener("click", () => {
@@ -697,6 +697,7 @@ function loadIteration(data, iter, reset) {
 
     if(iter === -1) {
         loadEmpty(r, c);
+        console.log("loading empty");
         return;
     }
 
@@ -704,7 +705,7 @@ function loadIteration(data, iter, reset) {
     console.log("loading iterations")
     document.getElementById("iterations-dropdown-label").innerText = "Iteration " + (iter + 1);
     console.log("checking " + "iteration-" + iter)
-    console.log(document.getElementById("iteration-" + iter).classList)
+    console.log(document.getElementById("iteration-" + iter).   classList)
     document.getElementById("iteration-" + iter).classList.add("active");
     document.getElementById("iteration-" + iter).parentElement.children[1].classList.add("active");
     currentIter = iter;
@@ -747,6 +748,7 @@ function loadIteration(data, iter, reset) {
             cell.appendChild(button);
         }
     }
+    checkForChanges();
 }
 
 function change(r, c) {
@@ -787,6 +789,7 @@ function change(r, c) {
     else {
         console.log("broken :(");
     }
+    checkForChanges();
 }
 
 function addStudent(student) {
@@ -865,6 +868,8 @@ function addStudent(student) {
     element.addEventListener("dragstart", (e) => {
         studentDragStart(e, student.id);
     });
+
+    checkForChanges();
 }
 
 function showToastInfo(message) {
@@ -1043,6 +1048,7 @@ function cellDrop(e) {
             document.vars.grid[tr][tc].student = oseat.student;
         }
     }
+    checkForChanges();
 }
 
 function clone(obj) {
@@ -1566,4 +1572,29 @@ function shuffle(array) {
 
 function dist(r, c, r1, c1) {
     return Math.sqrt((r - r1) * (r - r1) + (c - c1) * (c - c1));
+}
+
+async function checkForChanges() {
+    let settingGrid = (await ipcRenderer.invoke("settings.get", "classes." + currentClass)).iterations[currentIter].seats;
+    let equal = true;
+    if(settingGrid.length !== document.vars.grid.length || settingGrid[0].length !== document.vars.grid[0].length) equal = false;
+    else {
+        for(let i = 0;i < settingGrid.length;i++) {
+            for(let j = 0;j < settingGrid[0].length;j++) {
+                if(settingGrid[i][j].empty !== document.vars.grid[i][j].empty || settingGrid[i][j].student !== document.vars.grid[i][j].student) {
+                    equal = false;
+                    break;
+                }
+            }
+        }
+    }
+    if(!equal) {
+        document.getElementById("changes-warning").classList.remove("d-none");
+        console.log("changes made")
+        console.log((await ipcRenderer.invoke("settings.get", "classes." + currentClass)).iterations[currentIter].seats)
+    }
+    else {
+        document.getElementById("changes-warning").classList.add("d-none");
+        console.log("no changes made")
+    }
 }

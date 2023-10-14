@@ -35,7 +35,7 @@ async function createWindow() {
 
     // Load app
     await win.loadFile(path.join(__dirname, "index.html"));
-    // win.webContents.openDevTools();
+    win.webContents.openDevTools();
 
     // settings.set("testing testing.testing testing", {"array": [0]})
 
@@ -89,6 +89,4 @@ ipcMain.handle("add-class", (event, args) => {
 /*
 - Scroll button - front and back
 - fill all empty seats in the front
-- changes made warning
-- add class to sidebar
  */
