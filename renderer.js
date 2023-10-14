@@ -29,11 +29,12 @@ let currentClass, currentIter = -1;
 let settings;
 ipcRenderer.invoke("settings.get", "classes").then(async (res) => {
     settings = res;
-    let defaultClass = loadClasses(settings);
-    if(defaultClass !== "") loadClass(defaultClass);
+    let defaultClass = await loadClasses(settings);
+    console.log(defaultClass)
+    if(defaultClass !== "") await loadClass(defaultClass);
 });
 
-function loadClasses(settings) {
+async function loadClasses(settings) {
     let defaultClass = "";
     let dropdown = document.getElementById("dropdown-classes");
     let dropdownArchived = document.getElementById("dropdown-classes-archived");
@@ -51,7 +52,8 @@ function loadClasses(settings) {
             dropdownArchived.insertBefore(element, dropdownArchived.firstChild);
         }
     });
-    return defaultClass;
+    let lastSeen = await ipcRenderer.invoke("settings.get", "lastSeen");
+    return lastSeen === "." ? defaultClass : lastSeen;
 }
 
 function addClassElement(key) {
@@ -508,6 +510,7 @@ async function loadClass(className) {
     document.getElementById("student-sidebar-button").classList.remove("disabled");
 
     settings = await ipcRenderer.invoke("settings.get", "classes");
+    await ipcRenderer.invoke("settings.set", "lastSeen", className);
     let res = settings[className];
     document.vars.students = res.students;
 
@@ -710,6 +713,7 @@ function loadIteration(data, iter, reset) {
                 change(i, j);
             });
             if(data.seats[i][j].student) {
+                console.log("setting " + i + " " + j)
                 cell.children[0].textContent = document.vars.students[data.seats[i][j].student].name;
                 cell.classList.add("cell");
                 button.classList.add("bi-x");
@@ -1023,7 +1027,7 @@ function cellDrop(e) {
             //if original seat has a student, target seat will now have that student
             document.vars.grid[tr][tc] = new Seat(false, oseat.student);
             tcell.classList.remove("cell-unoccupied");
-            tcell.classList.remove("cell- \empty");
+            tcell.classList.remove("cell-empty");
             tcell.classList.add("cell");
             tcell.children[0].textContent = document.vars.students[oseat.student].name;
             tbutton.classList.remove("bi-plus");
@@ -1058,7 +1062,7 @@ function generate(grid, options) {
                     //just in case
                     document.vars.students[grid[i][j].student].r = i;
                     document.vars.students[grid[i][j].student].c = j;
-                    if (i < r / 2) back.push(grid[i][j].student);
+                    if (i < Math.floor(r / 2)) back.push(grid[i][j].student);
                     else front.push(grid[i][j].student);
                     grid[i][j].student = -1;
                 }
@@ -1069,14 +1073,14 @@ function generate(grid, options) {
 
             //first pass: fill all previously occupied positions
             //backwards so it can fill from front
-            for(let i = r / 2 - 1;i >= 0;i--) {
+            for(let i = Math.floor(r / 2) - 1;i >= 0;i--) {
                 for(let j = 0;j < c;j++) {
                     if(grid[i][j].empty) continue;
                     if(front.length && grid[i][j].student === -1) grid[i][j].student = front.pop();
                     else grid[i][j].student = null;
                 }
             }
-            for(let i = r - 1;i >= r / 2;i--) {
+            for(let i = r - 1;i >= Math.floor(r / 2);i--) {
                 for(let j = 0;j < c;j++) {
                     if(grid[i][j].empty) continue;
                     if(back.length && grid[i][j].student === -1) grid[i][j].student = back.pop();
@@ -1085,13 +1089,13 @@ function generate(grid, options) {
             }
 
             //second pass: fill all empty positions
-            for(let i = r / 2 - 1;i >= 0;i--) {
+            for(let i = Math.floor(r / 2) - 1;i >= 0;i--) {
                 for(let j = 0;j < c;j++) {
                     if(grid[i][j].empty || grid[i][j].student) continue;
                     if(front.length) grid[i][j].student = front.pop();
                 }
             }
-            for(let i = r - 1;i >= r / 2;i--) {
+            for(let i = r - 1;i >= Math.floor(r / 2);i--) {
                 for(let j = 0;j < c;j++) {
                     if(grid[i][j].empty || grid[i][j].student) continue;
                     if(back.length) grid[i][j].student = back.pop();
@@ -1118,7 +1122,7 @@ function generate(grid, options) {
                     //just in case
                     document.vars.students[grid[i][j].student].r = i;
                     document.vars.students[grid[i][j].student].c = j;
-                    if (i < r / 2) back.push(grid[i][j].student);
+                    if (i < Math.floor(r / 2)) back.push(grid[i][j].student);
                     else front.push(grid[i][j].student);
                     grid[i][j].student = null;
                 }
@@ -1128,13 +1132,13 @@ function generate(grid, options) {
             shuffle(back);
 
             //backwards so it can fill from front
-            for(let i = r / 2 - 1;i >= 0;i--) {
+            for(let i = Math.floor(r / 2) - 1;i >= 0;i--) {
                 for(let j = 0;j < c;j++) {
                     if(grid[i][j].empty) continue;
                     if(front.length) grid[i][j].student = front.pop();
                 }
             }
-            for(let i = r - 1;i >= r / 2;i--) {
+            for(let i = r - 1;i >= Math.floor(r / 2);i--) {
                 for(let j = 0;j < c;j++) {
                     if(grid[i][j].empty) continue;
                     if(back.length) grid[i][j].student = back.pop();
@@ -1149,10 +1153,10 @@ function generate(grid, options) {
                     //just in case
                     document.vars.students[grid[i][j].student].r = i;
                     document.vars.students[grid[i][j].student].c = j;
-                    if (i < r / 2) front.push(grid[i][j].student);
-                    else if (i > r / 2) back.push(grid[i][j].student);
+                    if (i < Math.floor(r / 2)) front.push(grid[i][j].student);
+                    else if (i > Math.floor(r / 2)) back.push(grid[i][j].student);
                     else {
-                        if(j < c / 2) back.push(grid[i][j].student)
+                        if(j < Math.floor(c / 2)) back.push(grid[i][j].student)
                         else front.push(grid[i][j].student) // if c is odd then this will push the center student
                     }
                 }
@@ -1161,29 +1165,29 @@ function generate(grid, options) {
             shuffle(front);
             shuffle(back);
 
-            // starting from c / 2 (including middle if c is odd) filling
-            for(let j = c / 2;j >= 0;j--) {
-                if(grid[r / 2][j].empty) continue;
-                if(front.length) grid[r / 2][j].student = front.pop();
+            // starting from Math.floor(c / 2) (including middle if c is odd) filling
+            for(let j = Math.floor(c / 2);j >= 0;j--) {
+                if(grid[Math.floor(r / 2)][j].empty) continue;
+                if(front.length) grid[Math.floor(r / 2)][j].student = front.pop();
             }
 
             //backwards so it can fill from front
-            for(let i = r / 2 - 1;i >= 0;i--) {
+            for(let i = Math.floor(r / 2) - 1;i >= 0;i--) {
                 for(let j = 0;j < c;j++) {
                     if(grid[i][j].empty) continue;
                     if(front.length) grid[i][j].student = front.pop();
                 }
             }
-            for(let i = r - 1;i > r / 2;i--) {
+            for(let i = r - 1;i > Math.floor(r / 2);i--) {
                 for(let j = 0;j < c;j++) {
                     if(grid[i][j].empty) continue;
                     if(back.length) grid[i][j].student = back.pop();
                 }
             }
 
-            for(let j = c;j > c / 2;j--) {
-                if(grid[r / 2][j].empty) continue;
-                if(front.length) grid[r / 2][j].student = back.pop();
+            for(let j = c;j > Math.floor(c / 2);j--) {
+                if(grid[Math.floor(r / 2)][j].empty) continue;
+                if(front.length) grid[Math.floor(r / 2)][j].student = back.pop();
             }
         }
 
@@ -1191,6 +1195,172 @@ function generate(grid, options) {
         if(front.length || back.length) {
             showToastInfo("Wasn't able to fit " + (front.length + back.length) + " students due to not having enough seats. ");
         }
+    }
+    else if(options.shuffleFront){
+        let front = [], back = [];
+        if(r % 2 === 0) {
+            for (let i = Math.floor(r / 2); i < r; i++) {
+                for (let j = 0; j < c; j++) {
+                    if (!grid[i][j].student) continue;
+                    //just in case
+                    document.vars.students[grid[i][j].student].r = i;
+                    document.vars.students[grid[i][j].student].c = j;
+                    front.push(grid[i][j].student);
+                    grid[i][j].student = -1;
+                }
+            }
+
+            shuffle(front);
+
+            //backwards so it can fill from front
+            for(let i = r - 1;i >= Math.floor(r / 2);i--) {
+                for(let j = 0;j < c;j++) {
+                    if(grid[i][j].empty) continue;
+                    if(front.length && grid[i][j].student === -1) grid[i][j].student = front.pop();
+                }
+            }
+        }
+        else {
+            //center student (if c is odd) will be considered to be part of the back and will be added to the front half
+            for (let i = 0; i < r; i++) {
+                for (let j = 0; j < c; j++) {
+                    if (!grid[i][j].student) continue;
+                    //just in case
+                    document.vars.students[grid[i][j].student].r = i;
+                    document.vars.students[grid[i][j].student].c = j;
+                    if (i > Math.floor(r / 2)) front.push(grid[i][j].student);
+                    else if (i == Math.floor(r / 2) && j >= Math.floor(c / 2)) front.push(grid[i][j].student)
+                }
+            }
+
+            shuffle(front);
+
+            for(let j = c - 1;j >= Math.floor(c / 2);j--) {
+                if(grid[Math.floor(r / 2)][j].empty) continue;
+                if(front.length && grid[Math.floor(r / 2)][j].student === -1) grid[Math.floor(r / 2)][j].student = front.pop();
+            }
+
+            //backwards so it can fill from front
+            for(let i = r - 1;i >= Math.floor(r / 2);i--) {
+                for(let j = 0;j < c;j++) {
+                    if(grid[i][j].empty) continue;
+                    if(front.length && grid[i][j].student === -1) grid[i][j].student = front.pop();
+                }
+            }
+        }
+
+        showDistanceMessageHalf(grid, totStudents, 0);
+    }
+    else if(options.shuffleFrontPush){
+        let front = [], back = [];
+        if(r % 2 === 0) {
+            for (let i = Math.floor(r / 2); i < r; i++) {
+                for (let j = 0; j < c; j++) {
+                    if (!grid[i][j].student) continue;
+                    //just in case
+                    document.vars.students[grid[i][j].student].r = i;
+                    document.vars.students[grid[i][j].student].c = j;
+                    front.push(grid[i][j].student);
+                    grid[i][j].student = null;
+                }
+            }
+
+            shuffle(front);
+
+            //backwards so it can fill from front
+            for(let i = r - 1;i >= Math.floor(r / 2);i--) {
+                for(let j = 0;j < c;j++) {
+                    if(grid[i][j].empty) continue;
+                    if(front.length) grid[i][j].student = front.pop();
+                }
+            }
+        }
+        else {
+            //center student (if c is odd) will be considered to be part of the back and will be added to the front half
+            for (let i = 0; i < r; i++) {
+                for (let j = 0; j < c; j++) {
+                    if (!grid[i][j].student) continue;
+                    //just in case
+                    document.vars.students[grid[i][j].student].r = i;
+                    document.vars.students[grid[i][j].student].c = j;
+                    if (i > Math.floor(r / 2)) front.push(grid[i][j].student);
+                    else if (i == Math.floor(r / 2) && j >= Math.floor(c / 2)) front.push(grid[i][j].student)
+                }
+            }
+
+            shuffle(front);
+
+            for(let i = r - 1;i > Math.floor(r / 2);i--) {
+                for(let j = 0;j < c;j++) {
+                    if(grid[i][j].empty) continue;
+                    if(front.length) grid[i][j].student = front.pop();
+                }
+            }
+
+            for(let j = c - 1;j >= Math.floor(c / 2);j--) {
+                if(grid[Math.floor(r / 2)][j].empty) continue;
+                if(front.length) grid[Math.floor(r / 2)][j].student = front.pop();
+            }
+        }
+
+        showDistanceMessageHalf(grid, totStudents, 0);
+    }
+    else if(options.shuffleBack){
+        let back = [];
+        if(r % 2 === 0) {
+            for (let i = 0; i < Math.floor(r / 2); i++) {
+                for (let j = 0; j < c; j++) {
+                    if (!grid[i][j].student) continue;
+                    //just in case
+                    document.vars.students[grid[i][j].student].r = i;
+                    document.vars.students[grid[i][j].student].c = j;
+                    back.push(grid[i][j].student);
+                    grid[i][j].student = -1;
+                }
+            }
+
+            shuffle(back);
+
+            //backwards so it can fill from front
+            for(let i = Math.floor(r / 2) - 1;i >= 0;i--) {
+                for(let j = 0;j < c;j++) {
+                    if(grid[i][j].empty) continue;
+                    if(back.length && grid[i][j].student === -1) grid[i][j].student = back.pop();
+                }
+            }
+        }
+        else {
+            //center student (if c is odd) will be considered to be part of the back and will be added to the front half
+            for (let i = 0; i < r; i++) {
+                for (let j = 0; j < c; j++) {
+                    if (!grid[i][j].student) continue;
+                    //just in case
+                    document.vars.students[grid[i][j].student].r = i;
+                    document.vars.students[grid[i][j].student].c = j;
+                    if (i < Math.floor(r / 2)) back.push(grid[i][j].student);
+                    else if (i == Math.floor(r / 2) && j < Math.floor(c / 2)) front.push(grid[i][j].student)
+                }
+            }
+
+            shuffle(front);
+
+            for(let j = 0;j < Math.floor(c / 2);j++) {
+                if(grid[Math.floor(r / 2)][j].empty) continue;
+                if(back.length && grid[Math.floor(r / 2)][j].student === -1) grid[Math.floor(r / 2)][j].student = back.pop();
+            }
+
+            for(let i = Math.floor(r / 2) - 1;i >= 0;i--) {
+                for(let j = 0;j < c;j++) {
+                    if(grid[i][j].empty) continue;
+                    if(back.length && grid[i][j].student === -1) grid[i][j].student = back.pop();
+                }
+            }
+        }
+
+        showDistanceMessageHalf(grid, totStudents, 0);
+    }
+    else if(options.shuffleBackPush){
+
     }
     else if(options.populate) {
         let r = grid.length, c = grid[0].length;
@@ -1248,6 +1418,67 @@ function showDistanceMessage(grid, totStudents) {
             document.vars.students[grid[i][j].student].c = j;
         }
     }
+    let avgDist = totDist / totStudents, avgMDist = totMDist / totStudents;
+    showToastInfo("Successfully shuffled: \n " +
+        "Average Distance: " + avgDist.toFixed(2) + "\n Average Manhattan Distance: " + avgMDist.toFixed(2) +
+        "\n Minimum Distance: " + minDist.toFixed(2) + "\n Minimum Manhattan Distance: " + minMDist.toFixed(2) +
+        "\n Maximum Distance: " + maxDist.toFixed(2) + "\n Maximum Manhattan Distance: " + maxMDist.toFixed(2));
+}
+
+function showDistanceMessageHalf(grid, totStudents, half) {
+    let r = grid.length, c = grid[0].length
+    let totDist = 0.00, totMDist = 0.00;
+    let minDist = 1e9, minMDist = 1e9;
+    let maxDist = 0, maxMDist = 0;
+
+    function getDist(i, j) {
+        let cDist = dist(i, j, document.vars.students[grid[i][j].student].r, document.vars.students[grid[i][j].student].c);
+        let cMDist = Math.abs(i - document.vars.students[grid[i][j].student].r) + Math.abs(j - document.vars.students[grid[i][j].student].c);
+        totDist += cDist;
+        totMDist += cMDist;
+        minDist = Math.min(minDist, cDist);
+        minMDist = Math.min(minMDist, cMDist);
+        maxDist = Math.max(maxDist, cDist);
+        maxMDist = Math.max(maxMDist, cMDist);
+        document.vars.students[grid[i][j].student].r = i;
+        document.vars.students[grid[i][j].student].c = j;
+    }
+
+    if(r % 2 === 0) {
+        let istart = -1, iend = -1
+        if(half === 0) {
+            istart = Math.floor(r / 2);
+            iend = r;
+        }
+        else {
+            istart = 0;
+            iend = Math.floor(r / 2);
+        }
+
+        for (let i = istart; i < iend; i++) {
+            for (let j = 0; j < c; j++) {
+                if(!grid[i][j].student) continue;
+                getDist(i, j);
+            }
+        }
+    }
+    else {
+        for (let i = 0; i < r; i++) {
+            for (let j = 0; j < c; j++) {
+                if (!grid[i][j].student) continue;
+                //just in case
+                document.vars.students[grid[i][j].student].r = i;
+                document.vars.students[grid[i][j].student].c = j;
+                if (i < Math.floor(r / 2)) if(half === 0) getDist(i, j);
+                else if (i > Math.floor(r / 2)) if(half === 1) getDist(i, j);
+                else {
+                    if(j < Math.floor(c / 2)) if(half === 1) getDist(i, j);
+                    else {if(half === 0) getDist(i, j);}
+                }
+            }
+        }
+    }
+
     let avgDist = totDist / totStudents, avgMDist = totMDist / totStudents;
     showToastInfo("Successfully shuffled: \n " +
         "Average Distance: " + avgDist.toFixed(2) + "\n Average Manhattan Distance: " + avgMDist.toFixed(2) +

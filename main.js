@@ -18,6 +18,7 @@ let win;
 async function createWindow() {
 
     if(!settings.get("classes")) settings.set("classes", {});
+    if(!settings.get("lastSeen")) settings.set("lastSeen", ".");
 
     // Create the browser window.
     win = new BrowserWindow({
