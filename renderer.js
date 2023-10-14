@@ -1366,7 +1366,59 @@ function generate(grid, options) {
         showDistanceMessageHalf(grid, totStudents, 1);
     }
     else if(options.shuffleBackPush){
+        let back = [];
+        if(r % 2 === 0) {
+            for (let i = 0; i < Math.floor(r / 2); i++) {
+                for (let j = 0; j < c; j++) {
+                    if (!grid[i][j].student) continue;
+                    //just in case
+                    document.vars.students[grid[i][j].student].r = i;
+                    document.vars.students[grid[i][j].student].c = j;
+                    back.push(grid[i][j].student);
+                    grid[i][j].student = null;
+                }
+            }
 
+            shuffle(back);
+
+            //backwards so it can fill from front
+            for(let i = Math.floor(r / 2) - 1;i >= 0;i--) {
+                for(let j = 0;j < c;j++) {
+                    if(grid[i][j].empty) continue;
+                    if(back.length) grid[i][j].student = back.pop();
+                }
+            }
+        }
+        else {
+            //center student (if c is odd) will be considered to be part of the back and will be added to the front half
+            for (let i = 0; i < r; i++) {
+                for (let j = 0; j < c; j++) {
+                    if (!grid[i][j].student) continue;
+                    //just in case
+                    document.vars.students[grid[i][j].student].r = i;
+                    document.vars.students[grid[i][j].student].c = j;
+                    if (i < Math.floor(r / 2)) back.push(grid[i][j].student);
+                    else if (i === Math.floor(r / 2) && j < Math.floor(c / 2)) back.push(grid[i][j].student)
+                    grid[i][j].student = null;
+                }
+            }
+
+            shuffle(back);
+
+            for(let j = 0;j < Math.floor(c / 2);j++) {
+                if(grid[Math.floor(r / 2)][j].empty) continue;
+                if(back.length) grid[Math.floor(r / 2)][j].student = back.pop();
+            }
+
+            for(let i = Math.floor(r / 2) - 1;i >= 0;i--) {
+                for(let j = 0;j < c;j++) {
+                    if(grid[i][j].empty) continue;
+                    if(back.length) grid[i][j].student = back.pop();
+                }
+            }
+        }
+
+        showDistanceMessageHalf(grid, totStudents, 1);
     }
     else if(options.populate) {
         let r = grid.length, c = grid[0].length;
