@@ -33,6 +33,7 @@ a.bi {
     max-width: 90%;
     display: flex;
     flex-flow: row;
+    cursor: pointer;
 }
 
 .class {
@@ -45,7 +46,7 @@ a.bi {
 }
 
 .student-used {
-    background-color: lightgreen;
+    background-color: #12E293;
     /*color: white;*/
 }
 
@@ -296,4 +297,30 @@ div.class-buttons .bi {
 
 #content {
     height: 100%;
+}
+
+/*animations*/
+.cell {
+    -webkit-animation-duration: 1s;
+    animation-duration: 1s;
+    -webkit-animation-fill-mode: both;
+    animation-fill-mode: both;
+}
+
+@keyframes cell-highlight {
+    40%, 60% {
+        box-shadow:
+                inset 0 0 12px #fff,      /* inner white */
+                inset 10px 0 20px #1ee8ff,   /* inner left magenta short */
+                inset -10px 0 20px #12E293,  /* inner right cyan short */
+                inset 10px 0 75px #1ee8ff,  /* inner left magenta broad */
+                inset -10px 0 75px #12E293, /* inner right cyan broad */
+                0 0 30px 15px #fff,  /* inner white */
+                0 0 50px 30px #1ee8ff, /* middle magenta */
+                0 0 70px 45px #12E293; /* outer cyan */
+    }
+}
+
+.cell-highlight {
+    animation-name: cell-highlight;
 }

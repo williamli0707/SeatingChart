@@ -168,7 +168,6 @@ document.getElementById("place-random").addEventListener("click", () => {
 
 document.getElementById("shuffle-frontback").addEventListener("click", () => {
     generate(document.vars.grid, {
-        populate: false,
         shuffleFrontBack: true,
     });
     loadIteration({
@@ -181,8 +180,55 @@ document.getElementById("shuffle-frontback").addEventListener("click", () => {
 
 document.getElementById("shuffle-frontback-front").addEventListener("click", () => {
     generate(document.vars.grid, {
-        populate: false,
         shuffleFrontBackPush: true,
+    });
+    loadIteration({
+        "rows": document.vars.grid.length,
+        "columns": document.vars.grid[0].length,
+        "seats": document.vars.grid
+    }, currentIter, false);
+    shuffleModal.hide();
+});
+
+document.getElementById("shuffle-front").addEventListener("click", () => {
+    generate(document.vars.grid, {
+        shuffleFront: true
+    });
+    loadIteration({
+        "rows": document.vars.grid.length,
+        "columns": document.vars.grid[0].length,
+        "seats": document.vars.grid
+    }, currentIter, false);
+    shuffleModal.hide();
+});
+
+document.getElementById("shuffle-front-front").addEventListener("click", () => {
+    generate(document.vars.grid, {
+        shuffleFrontPush: true
+    });
+    loadIteration({
+        "rows": document.vars.grid.length,
+        "columns": document.vars.grid[0].length,
+        "seats": document.vars.grid
+    }, currentIter, false);
+    shuffleModal.hide();
+});
+
+document.getElementById("shuffle-back").addEventListener("click", () => {
+    generate(document.vars.grid, {
+        shuffleBack: true,
+    });
+    loadIteration({
+        "rows": document.vars.grid.length,
+        "columns": document.vars.grid[0].length,
+        "seats": document.vars.grid
+    }, currentIter, false);
+    shuffleModal.hide();
+});
+
+document.getElementById("shuffle-back-front").addEventListener("click", () => {
+    generate(document.vars.grid, {
+        shuffleBackPush: true,
     });
     loadIteration({
         "rows": document.vars.grid.length,
@@ -793,6 +839,18 @@ function addStudent(student) {
     document.getElementById("student-list").children[0].appendChild(element);
 
     //nav-item student student-used list-group-item
+
+    element.addEventListener("click", (e) => {
+        if(document.vars.students[student.id].r != null) {
+            let cell = document.getElementById("cell-" + document.vars.students[student.id].r + "-" + document.vars.students[student.id].c);
+            if(cell.classList.contains("cell-highlight")) return;
+            cell.scrollIntoView({behavior: "smooth", block: "center", inline: "center"});
+            cell.classList.add("cell-highlight");
+            setTimeout(() => {
+                cell.classList.remove("cell-highlight");
+            }, 1000);
+        }
+    });
 
     element.addEventListener("dragstart", (e) => {
         studentDragStart(e, student.id);
