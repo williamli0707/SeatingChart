@@ -1,4 +1,4 @@
-const { ipcRenderer } = require('electron');
+const { ipcRenderer, win } = require('electron');
 const fs = require("fs");
 const { parse } = require("csv");
 const { Seat, Student, Iteration } = require("./classes.js");
@@ -22,11 +22,25 @@ let toastNewClass = bootstrap.Toast.getOrCreateInstance(document.getElementById(
 let toastInfo = bootstrap.Toast.getOrCreateInstance(document.getElementById('toast-info'));
 let sidebar = new bootstrap.Collapse('#sidebar', {toggle: false});
 
+let changes = false; //have changes been made
+
 let testData;
 
 let currentClass, currentIter = -1;
 
 let settings;
+
+window.onbeforeunload = async (e) => {
+    let resp = (await ipcRenderer.invoke('interrupt-close-win')).response;
+    console.log(resp);
+    let close = !(changes && resp === 0)
+    console.log(close);
+    if(close === true) {
+        console.log('closing')
+        ipcRenderer.send('close-win');
+    }
+}
+
 ipcRenderer.invoke("settings.get", "classes").then(async (res) => {
     settings = res;
     let defaultClass = await loadClasses(settings);
@@ -130,8 +144,9 @@ function addClassElement(key) {
 
     element.appendChild(buttonDiv);
 
-    a.addEventListener("click", () => {
-        loadClass(key);
+    a.addEventListener("click", async () => {
+        await loadClass(key);
+        if(changes) return;
         showToastInfo("Loaded class " + key.replaceAll("`", ".") + " successfully!");
         sidebar.hide();
     });
@@ -245,6 +260,7 @@ document.getElementById("shuffle-back-front").addEventListener("click", () => {
 document.getElementById("open-new-class").addEventListener("click", async () => {
     let key = document.getElementById("open-new-class").getAttribute("class-name");
     await loadClass(key);
+    if(changes) return;
     showToastInfo("Loaded class " + key.replaceAll("`", ".") + " successfully!");
     sidebar.hide();
 });
@@ -496,21 +512,28 @@ document.getElementById("archived-classes-dropdown").addEventListener("hidden.bs
 
 document.getElementById("save-as-new").addEventListener("click", async () => {
     //there should be a better way to do this
+    changes = false;
     let iterations = await ipcRenderer.invoke("settings.get", "classes." + currentClass + ".iterations");
     iterations.push(new Iteration(document.vars.grid.length, document.vars.grid[0].length, document.vars.grid));
     await ipcRenderer.invoke("settings.set", "classes." + currentClass + ".iterations", iterations);
     showToastInfo("Saved to iteration " + iterations.length + "!");
     await loadClass(currentClass);
+    await checkForChanges();
 });
 
 document.getElementById("save-to-current").addEventListener("click", async () => {
+    changes = false;
     let iterations = await ipcRenderer.invoke("settings.get", "classes." + currentClass + ".iterations");
     iterations[currentIter] = new Iteration(document.vars.grid.length, document.vars.grid[0].length, document.vars.grid);
     await ipcRenderer.invoke("settings.set", "classes." + currentClass + ".iterations", iterations);
     showToastInfo("Saved to iteration " + (currentIter + 1) + "!");
+    await checkForChanges();
 });
 
 async function loadClass(className) {
+    if(changes && (await ipcRenderer.invoke("interrupt-loading")).response === 0) return;
+    changes = false;
+
     document.getElementById("footer").classList.remove("d-none");
     document.getElementById("extras-menu-button").classList.remove("disabled");
     document.getElementById("shuffle-button").classList.remove("disabled");
@@ -638,7 +661,8 @@ function loadEmpty(r, c) {
     currentIter++;
 }
 
-function loadIteration(data, iter, reset) {
+async function loadIteration(data, iter, reset) {
+    if(changes && (await ipcRenderer.invoke("interrupt-loading")).response === 0) return;
     let content = document.getElementById("iteration-content");
     while(content.children.length) content.children[0].remove();
 
@@ -748,7 +772,7 @@ function loadIteration(data, iter, reset) {
             cell.appendChild(button);
         }
     }
-    checkForChanges();
+    await checkForChanges();
 }
 
 function change(r, c) {
@@ -1597,4 +1621,5 @@ async function checkForChanges() {
         document.getElementById("changes-warning").classList.add("d-none");
         console.log("no changes made")
     }
+    changes = !equal;
 }

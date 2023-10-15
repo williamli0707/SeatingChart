@@ -1,6 +1,7 @@
 const {
     app,
     BrowserWindow,
+    dialog,
     ipcMain
 } = require("electron");
 const path = require("path");
@@ -56,6 +57,10 @@ ipcMain.on("deleteFile", (event, args) => {
     win.webContents.send("deleteFileResponse", true);
 });
 
+ipcMain.on('close-win', (event, args) => {
+    win.destroy();
+})
+
 app.on('ready', createWindow);
 
 ipcMain.handle("settings.set", (event, key, value) => {
@@ -81,6 +86,25 @@ ipcMain.handle("add-class", (event, args) => {
         }
     );
 });
+
+ipcMain.handle('interrupt-close-win', (event, args) => {
+    return dialog.showMessageBox(win, {
+        type: 'question',
+        title: 'Confirm',
+        message: 'You have unsaved changes. Are you sure you want to exit? ',
+        buttons: ['Cancel', 'Exit']
+    })
+})
+
+ipcMain.handle('interrupt-loading', (event, args) => {
+    return dialog.showMessageBox(win, {
+        type: 'question',
+        title: 'Confirm',
+        message: 'You have unsaved changes. Are you sure you want to continue? ',
+        buttons: ['Cancel', 'Continue']
+    })
+})
+
 
 
 // ipcMain.handle()
