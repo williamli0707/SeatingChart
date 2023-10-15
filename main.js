@@ -36,7 +36,7 @@ async function createWindow() {
 
     // Load app
     await win.loadFile(path.join(__dirname, "index.html"));
-    win.webContents.openDevTools();
+    // win.webContents.openDevTools();
 
     // settings.set("testing testing.testing testing", {"array": [0]})
 
