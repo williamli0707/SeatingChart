@@ -30,16 +30,14 @@ let currentClass, currentIter = -1;
 
 let settings;
 
-window.onbeforeunload = async (e) => {
-    let resp = (await ipcRenderer.invoke('interrupt-close-win')).response;
-    console.log(resp);
-    let close = !(changes && resp === 0)
-    console.log(close);
-    if(close === true) {
-        console.log('closing')
-        ipcRenderer.send('close-win');
-    }
-}
+let oldReload = window.onbeforeunload;
+let reloading = false;
+
+window.addEventListener("beforeunload", async (e) => {
+    if(reloading) return;
+    e.preventDefault();
+    if(!(changes && (await ipcRenderer.invoke('interrupt-close-win')).response === 0)) ipcRenderer.send('close-win');
+});
 
 ipcRenderer.invoke("settings.get", "classes").then(async (res) => {
     settings = res;
@@ -68,7 +66,7 @@ async function loadClasses(settings) {
     });
     let lastSeen = await ipcRenderer.invoke("settings.get", "lastSeen");
     if(!(await ipcRenderer.invoke("settings.get", "classes." + lastSeen.replaceAll(".", "`")))) return defaultClass;
-    return lastSeen === "." ? defaultClass : lastSeen;
+    return lastSeen === "." ? defaultClass : lastSeen; //default value set for lastSeen is "." - check main.js
 }
 
 function addClassElement(key) {
@@ -100,7 +98,17 @@ function addClassElement(key) {
             let settings = await ipcRenderer.invoke("settings.get", "classes");
             delete settings[key];
             await ipcRenderer.invoke("settings.set", "classes", settings);
-            if(key === currentClass) await loadClass(await loadClasses(settings));
+            if(key === currentClass) {
+                let toload = await loadClasses(settings);
+                if(toload === "") {
+                    // document.getElementById("content")
+                    // ipcRenderer.send("reload")
+
+                    reloading = true;
+                    location.reload();
+                }
+                else await loadClass(await loadClasses(settings));
+            }
 
             element.remove();
 

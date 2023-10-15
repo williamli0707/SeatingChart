@@ -61,6 +61,11 @@ ipcMain.on('close-win', (event, args) => {
     win.destroy();
 })
 
+ipcMain.on('reload', async () => {
+    win.destroy();
+    // await createWindow();
+})
+
 app.on('ready', createWindow);
 
 ipcMain.handle("settings.set", (event, key, value) => {
